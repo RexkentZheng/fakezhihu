@@ -1,7 +1,7 @@
 <template>
   <div class="editor">
     <editor-header
-      @createArticle=createArticle
+      @relaseArticles=relaseArticles
     />
     <div class="content m-t-50">
       <el-upload
@@ -9,11 +9,14 @@
         drag
         action="/imgs/upload"
         :on-success=uploadSuc
+        :limit="3"
+        accept=".jpg,.jpeg,.JPG,.JPEG,.png,.PNG"
         multiple>
         <i class="el-icon-upload"></i>
         <div class="el-upload__text">添加题图</div>
       </el-upload>
-      <img :src=imgUrl alt="">
+      <!-- <img class="oldImg m-b-15" src="https://pic3.zhimg.com/v2-0cd1f1c469f59713d397864275f9349e_r.jpg" alt="" /> -->
+      <img class="oldImg m-b-15" :src=imgUrl alt="">
       <el-input
         v-model="title"
         class="m-b-15"
@@ -21,6 +24,7 @@
         placeholder="请输入标题（最多50个字）"
       />
       <rich-text-editor
+        ref='textEditor'
         :content='content'
         @updateConetent=updateConetent
       />
@@ -44,27 +48,84 @@ export default {
     return {
       title: '',
       content: '123',
+      contentText: '',
       imgUrl: '',
       type: '999'
     };
+  },
+  mounted() {
+    if (parseFloat(this.$route.params.articleId) !== 0) {
+      console.log(parseFloat(this.$route.params.articleId) !== 0);
+      this.getArticleInfo();
+    }
   },
   methods: {
     uploadSuc(response, file) {
       this.imgUrl = response.url;
     },
-    updateConetent(content) {
-      this.content=content;
+    updateConetent(content, contentText) {
+      this.content = content;
+      this.contentText = contentText;
+    },
+    relaseArticles() {
+      if (parseFloat(this.$route.params.articleId) !== 0) {
+        this.updateArticle();  
+      } else {
+        this.createArticle();
+      }
     },
     async createArticle() {
-      await request.post('/users', {
+      await request.post('/articles', {
         content: this.content,
+        excerpt: this.contentText.slice(0, 100),
         title: this.title,
         imgUrl: this.imgUrl,
-        userName: getCookies('name'),
         userId: getCookies('id'),
       }).then((res) => {
-        console.log(res);
+        if (res.status === 201) {
+          this.$Message.success('文章新建成功！');
+          this.$router.push({
+            name: 'peopleArticles'
+          });
+        } else {
+          this.$Message.error(res.error);
+        }
       });
+    },
+    async getArticleInfo() {
+      await request.get('/articles', {
+        articleId: this.$route.params.articleId
+      }).then((res) => {
+        const articleInfo = res.data.content;
+        if ( res.data.status === 200) {
+          this.content = articleInfo.content;
+          this.imgUrl = articleInfo.cover;
+          this.title = articleInfo.title;
+          this.$refs.textEditor.updateLocalContent(this.content);
+        } else {
+          this.$Message.error('获取文章内容失败，请稍后再试');
+          this.$router.go(-1);
+        }
+      })
+    },
+    async updateArticle() {
+      await request.put('/articles', {
+        articleId: this.$route.params.articleId,
+        content: this.content,
+        excerpt: this.contentText.slice(0, 100),
+        title: this.title,
+        imgUrl: this.imgUrl,
+        userId: getCookies('id'),
+      }).then((res) => {
+        if (res.data.status === 201) {
+          this.$Message.success('文章修改成功');
+          this.$router.push({
+            name: 'peopleArticles'
+          })
+        } else {
+          this.$Message.error('文章修改失败，请稍后再试');
+        }
+      })
     }
   },
 };

@@ -29,6 +29,14 @@ export default {
       data,
     });
   },
+  // put 方法
+  put(url, data) {
+    return service({
+      method: 'put',
+      url,
+      data,
+    });
+  },
   // get 方法
   get(url, data) {
     return service({

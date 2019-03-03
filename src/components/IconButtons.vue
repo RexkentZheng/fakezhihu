@@ -5,7 +5,7 @@
       <p>写回答</p>
     </div>
     <div class="icon-item normal-btn" v-if="exists.indexOf('article') >= 0">
-      <router-link :to="{name: 'editor'}">
+      <router-link :to="{name: 'editor', params: {articleId: 0}}">
         <i class="el-icon-edit-outline big-icon"></i>
         <p>写文章</p>
       </router-link>

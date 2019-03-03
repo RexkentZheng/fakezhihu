@@ -63,7 +63,7 @@ export default new Router({
       component: SignUp,
     },
     {
-      path: '/editor',
+      path: '/editor/:articleId',
       name: 'editor',
       component: Editor,
     },

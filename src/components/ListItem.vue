@@ -34,18 +34,20 @@
         </div>
       </div>
       <div class="content" v-if="showType === 'all'">
-        <span v-html="item.content"></span>
+        <div v-html="item.content"></div>
         <el-button class="btn-no-padding" type="text" icon="el-icon-arrow-up" @click="showType = 'experct'">收起</el-button>
       </div>
     </div>
     <list-item-actions
+      v-bind="$attrs"
+      v-on="$listeners"
       :type="type"
       :itemId="item.id"
       :thanks_count="item.voteup_count"
       :comment_count="33"
       :voteup_count="item.voteup_count"
       :relationship="33"
-      :showActionItems="['vote', 'thanks', 'comment', 'share', 'favorite', 'more']"
+      :showActionItems="showActionItems"
     />
   </div>
 </template>
@@ -54,6 +56,7 @@ import ListItemActions from '@/components/ListItemActions';
 
 export default {
   props: ['item', 'showPart', 'type'],
+  inheritAttrs: false,
   components: {
     ListItemActions,
   },
@@ -76,6 +79,17 @@ export default {
         }
       }
     },
+    showActionItems() {
+      if (this.$route.name === 'home') {
+        return ['vote', 'thanks', 'comment', 'share', 'favorite', 'more'];
+      } else if (this.$route.name === 'peopleArticles') {
+        return ['vote', 'thanks', 'comment', 'share', 'favorite', 'setting'];
+      } else {
+        return ['vote', 'thanks', 'comment', 'share', 'favorite', 'more'];
+      }
+    }
   },
+  methods: {
+  }
 };
 </script>

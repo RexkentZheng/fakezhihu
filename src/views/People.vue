@@ -66,6 +66,7 @@
         <el-card class="">
           <router-view
             v-for="(item, index) in fakeInfo"
+            @getAnswerList="getAnswerList"
             :key="index"
             :item="item"
             :showPart= "['title', 'creator', 'votes']"
@@ -153,6 +154,7 @@ import SidebarFooter from '@/components/SidebarFooter.vue';
 import request from '@/service';
 import _ from 'lodash';
 import moment from 'moment';
+import { getCookies } from '@/lib/utils';
 
 export default {
   watch: {
@@ -189,21 +191,11 @@ export default {
         this.getAnswerList();
       }
     },
-    getAnswerListParams() {
-      const response = async () => {
-        const r = await request.get(this.url, {
-          creatorId: 5
-        });
-        return r;
-      };
-      return new Promise((reslove) => {
-        reslove(response());
-      });
-    },
-    getAnswerList() {
-      this.getAnswerListParams().then((res) => {
+    async getAnswerList() {
+      await request.get(this.url, {
+        creatorId: getCookies('id')
+      }).then((res) => {
         if (res.status === 200) {
-          console.log(res.data);
           if (this.$route.name === 'peopleArticles') {
             this.fakeInfo = res.data;
           } else {
@@ -213,7 +205,7 @@ export default {
           }
           this.loading = false;
         }
-      });
+      })
     },
   },
 };

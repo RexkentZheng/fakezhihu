@@ -401,6 +401,10 @@
   .content {
     width: 660px;
     margin: 0 auto;
+    .oldImg {
+      width: 100%;
+      border-radius: 10px;
+    }
   }
 }
 

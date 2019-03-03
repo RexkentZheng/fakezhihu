@@ -33,6 +33,15 @@
           <el-dropdown-item>不感兴趣</el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
+      <el-dropdown v-if="showActionItems.indexOf('setting') >= 0"  placement="bottom" class="m-l-25">
+        <el-button class="btn-text-gray" size="medium" type="text" icon="el-icon-setting">
+          设置
+        </el-button>
+        <el-dropdown-menu slot="dropdown">
+          <el-dropdown-item @click.native="deleteArticles()">删除</el-dropdown-item>
+          <el-dropdown-item @click.native="$router.push({name: 'editor', params: {articleId: itemId}})">编辑</el-dropdown-item>
+        </el-dropdown-menu>
+      </el-dropdown>
     </div>
     <el-card class="comment" v-if="commentShow" v-loading="commentLoading">
       <span class="comment-type">精选评论（{{featuredComments.length}}）</span>
@@ -68,9 +77,11 @@ import CommentItem from '@/components/CommentItem.vue';
 import request from '@/service';
 import _ from 'lodash';
 import moment from 'moment';
+import { getCookies } from '@/lib/utils'
 
 export default {
   props: ['comment_count', 'thanks_count', 'voteup_count', 'relationship', 'metrics_area', 'showActionItems', 'type', 'itemId'],
+  inheritAttrs: false,
   components: {
     CommentItem,
   },
@@ -109,6 +120,21 @@ export default {
             }
           }));
           this.commentLoading = false;
+        }
+      });
+    },
+    async deleteArticles() {
+      await request.delete('/articles', {
+        data: {
+          userId: getCookies('id'),
+          articleId: this.itemId,
+        }
+      }).then((res) => {
+        if (res.data.status === 202) {
+          this.$Message.success('删除成功');
+          this.$emit('getAnswerList');
+        } else {
+          this.$Message.error(res.data.msg);
         }
       });
     },

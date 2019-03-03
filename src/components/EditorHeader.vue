@@ -8,7 +8,7 @@
     </div>
     <div class="functions">
       <el-dropdown class="publish m-r-25" placement="bottom">
-        <el-button type="primary" plain size='small' @click="$emit('createArticle')">
+        <el-button type="primary" plain size='small' @click="$emit('relaseArticles')">
           发布<i class="el-icon-arrow-down el-icon--right"></i>
         </el-button>
         <el-dropdown-menu slot="dropdown">
