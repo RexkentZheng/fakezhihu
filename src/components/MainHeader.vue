@@ -1,5 +1,8 @@
 <template>
   <header class="main-header">
+    <el-dialog title="新的问题" :visible.sync="askModelVisiable" :modal-append-to-body='false'>
+      <ask-model @changeAskModelVisiable=changeAskModelVisiable />
+    </el-dialog>
     <div class="header-content">
       <router-link class="m-r-20" :to="{name: 'home'}">
         <img class="logo" src="./../assets/imgs/logo.png" alt="">
@@ -17,7 +20,7 @@
       <el-input size="small" class="search m-r-10" placeholder="请输入内容" v-model="keywords" >
         <el-button slot="append" icon="el-icon-search"></el-button>
       </el-input>
-      <el-button size="small" type="primary">提问</el-button>
+      <el-button size="small" type="primary" @click="askModelVisiable = true">提问</el-button>
       <div class="userInfo" v-if="!isLogin">
         <router-link :to="{ name: 'signup'}">登录</router-link>
       </div>
@@ -52,6 +55,7 @@
   </header>
 </template>
 <script>
+import AskModel from './AskModel.vue';
 import request from '@/service';
 import { getCookies } from '@/lib/utils';
 
@@ -62,7 +66,11 @@ export default {
       activeIndex: '1',
       keywords: '',
       name: '',
+      askModelVisiable: false,
     };
+  },
+  components: {
+    AskModel,
   },
   mounted() {
     this.checkLogin();
@@ -99,6 +107,9 @@ export default {
     },
     goToPersonalPage() {
       this.$router.push(`/people/${getCookies('id')}`);
+    },
+    changeAskModelVisiable(status) {
+      this.askModelVisiable = status;
     },
   },
 };

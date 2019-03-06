@@ -24,6 +24,12 @@ module.exports = {
       '/imgs': {
         target: 'http://127.0.0.1:8081',
       },
+      '/questions': {
+        target: 'http://127.0.0.1:8081',
+      },
+      '/answers': {
+        target: 'http://127.0.0.1:8081',
+      },
       '/hot-list-web': {
         target: 'https://www.zhihu.com/api/v3/feed/topstory/',
       },

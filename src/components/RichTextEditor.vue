@@ -14,26 +14,21 @@
       :on-success=uploadSuc
       accept=".jpg,.jpeg,.JPG,.JPEG,.png,.PNG"
       multiple>
-      <i class="el-icon-upload"></i>
-      <div class="el-upload__text" ref="hiddenUpload">添加题图</div>
+      <div class="el-upload__text" ref="hiddenUpload"></div>
     </el-upload>
   </div>
 </template>
 <script>
 import { quillEditor } from 'vue-quill-editor';
-import Quill from 'quill'
-import _ from 'lodash';
 
 export default {
-  props: ['content'],
+  props: ['content', 'placeHolder'],
   components: {
     quillEditor,
   },
   data() {
     return {
       value: '',
-      addImgRange: '',//全局参数，每次添加图片时记录当前索引和长度
-      imgUrl: '',
       options: {
         modules: {
           toolbar: [
@@ -52,29 +47,31 @@ export default {
     };
   },
   mounted() {
+    this.$refs.myQuillEditor.quill.getModule('toolbar').addHandler('image', this.imgHandler);
+    this.$refs.myQuillEditor.quill.root.dataset.placeholder = this.placeHolder;
     this.value = this.content;
-    const vm =this;
-    const imgHandler = async (image) => {
-      vm.addImgRange = vm.$refs.myQuillEditor.quill.getSelection()
-      if (image) {
-        vm.$refs.hiddenUpload.click();    //  绑定在element元素上没有click方法
-      }
-    }
-    vm.$refs.myQuillEditor.quill.getModule("toolbar").addHandler("image", imgHandler)
   },
   methods: {
+    imgHandler(image) {
+      if (image) {
+        this.$refs.hiddenUpload.click(); //  绑定在element元素上没有click方法
+      }
+    },
+    updateConetent(content) {
+      this.$refs.myQuillEditor.quill.root.innerHTML = content;
+    },
     updateRichText(content) {
-      this.$emit('updateConetent',content.html, content.text);
+      this.$emit('updateConetent', content.html, content.text);
     },
     updateLocalContent(content) {
       this.value = content;
     },
-    uploadSuc(response, file) {
-      const vm =this;
-      const url = response.url.indexOf('http') != -1 ? response.url : 'http:' + response.url //返回图片网址中如果没有http自动拼接
+    uploadSuc(response) {
+      const url = response.url.indexOf('http') !== -1 ? response.url : `http${response.url}`; //  返回图片网址中如果没有http自动拼接
       //  此处必须时真实链接，否则无效
-      const a = 'https://quilljs.com/images/cloud.png';
-      vm.$refs.myQuillEditor.quill.insertEmbed(vm.$refs.myQuillEditor.quill.getSelection() , 'image', a);
+      let fake = url;
+      fake = 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1551677220305&di=01ebb0a440e9fcf4ec25a8e16f3ee540&imgtype=0&src=http%3A%2F%2Fi1.hdslb.com%2Fbfs%2Farchive%2Fa56f7131096427f75f0f86f6d19b2cc908a75c44.jpg';
+      this.$refs.myQuillEditor.quill.insertEmbed(this.$refs.myQuillEditor.quill.getSelection(), 'image', fake);
     },
 
   },

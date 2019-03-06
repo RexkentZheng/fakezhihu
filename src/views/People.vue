@@ -1,21 +1,34 @@
 <template>
-  <div class="people">
+  <div class="people" v-loading="userLoading">
+    <el-dialog :title="editorAnswer.question.title" :visible.sync="editorShow" :modal-append-to-body='false'>
+      <rich-text-editor
+        class="with-border m-t-10"
+        ref="richtext"
+        :content="editorAnswer.content"
+        :placeHolder="editorPlaceholder"
+        @updateConetent="updateConetent"
+      />
+      <div class="footer m-t-10">
+        <el-button @click="editorShow = false">取 消</el-button>
+        <el-button type="primary" @click="updateAnswer">确 定</el-button>
+      </div>
+    </el-dialog>
     <el-card class="profile">
       <div class="profile-header-cover">
         <img src="https://pic1.zhimg.com/80/v2-a15344fdf6d4824656f47a4bc1c8e29d_r.jpg" alt="">
       </div>
       <div class="profile-header-wrapper">
         <div class="avatar">
-          <img src="https://pic3.zhimg.com/v2-06e7cd8d27a976e105f7f69580d68f82_xll.jpg" alt="">
+          <img :src="userInfo.avatarUrl" alt="">
         </div>
         <div class="content">
           <div class="content-header">
-            <span class="username">
-              随安
-            </span>
-            <span class="introduce">
-              李健鲁迅谢耳朵还有我这个大学生
-            </span>
+            <p class="username">
+              {{userInfo.name}}
+            </p>
+            <p class="introduce">
+              {{userInfo.headline}}
+            </p>
           </div>
           <div class="sex" v-if="!detailsShow">
             <span class="el el-icon-fakezhihu-sexm middle-icon"></span>
@@ -63,14 +76,15 @@
         <main-list-nav
           :type= "'people'"
         />
-        <el-card class="">
+        <el-card>
           <router-view
             v-for="(item, index) in fakeInfo"
-            @getAnswerList="getAnswerList"
+            @getList="getList"
+            @editorShowFuc="editorShowFuc"
             :key="index"
             :item="item"
-            :showPart= "['title', 'creator', 'votes']"
-            :type= "type"
+            :showPart="['title', 'creator', 'votes']"
+            :type="type"
           />
         </el-card>
       </div>
@@ -151,6 +165,7 @@
 <script>
 import MainListNav from '@/components/MainListNav.vue';
 import SidebarFooter from '@/components/SidebarFooter.vue';
+import RichTextEditor from '@/components/RichTextEditor.vue';
 import request from '@/service';
 import _ from 'lodash';
 import moment from 'moment';
@@ -158,54 +173,116 @@ import { getCookies } from '@/lib/utils';
 
 export default {
   watch: {
-    "$route": "changeInfo"
+    $route: 'changeInfo',
   },
   components: {
     MainListNav,
     SidebarFooter,
+    RichTextEditor,
   },
   created() {
     this.loading = true;
     this.changeInfo();
+    this.getUser();
   },
   data() {
-    return{
+    return {
       url: '/peopleInfo/answers',
       fakeInfo: [],
+      userInfo: {},
+      editorAnswer: {
+        question: {
+          title: '',
+        },
+        content: '',
+      },
+      editorPlaceholder: '修改回答..',
       type: 'answer',
       loading: false,
+      userLoading: false,
+      editorShow: false,
       detailsShow: false,
     };
   },
   methods: {
+    editorShowFuc(id) {
+      [this.editorAnswer] = _.compact(_.map(this.fakeInfo, item => (item.id === id ? item : null)));
+      this.editorShow = true;
+    },
+    updateConetent(content, contentText) {
+      this.editorAnswer.content = content;
+      this.editorAnswer.excerpt = contentText.length > 100 ? contentText.slice(0, 100) : contentText;
+    },
     changeInfo() {
-      if(this.$route.name === 'peopleMain') {
+      if (this.$route.name === 'peopleMain') {
         this.loading = true;
-        this.url = '/peopleInfo/answers';
-        this.type = 'answer';
-        this.getAnswerList();
+        this.url = '/answers/creator';
+        this.type = 2;
+        this.getList();
       } else if (this.$route.name === 'peopleArticles') {
         this.loading = true;
         this.url = '/articles/creator';
-        this.type = 'article';
-        this.getAnswerList();
+        this.type = 0;
+        this.getList();
+      } else if (this.$route.name === 'peopleAsks') {
+        this.loading = true;
+        this.url = '/questions/creator';
+        this.type = 1;
+        this.getList();
       }
     },
-    async getAnswerList() {
+    async getList() {
+      this.fakeInfo = [];
       await request.get(this.url, {
-        creatorId: getCookies('id')
+        creatorId: getCookies('id'),
       }).then((res) => {
         if (res.status === 200) {
-          if (this.$route.name === 'peopleArticles') {
-            this.fakeInfo = res.data;
-          } else {
-            this.fakeInfo = _.sortBy(res.data.data, (item) => {
-              moment.unix(item.created_time);
-            }) ;
+          this.fakeInfo = _.map(res.data.list, item => ({
+            ...item,
+            createdAt: moment(item.createdAt).format('YYYY-MM-DD'),
+          }));
+          if (this.$route.name === 'peopleMain') {
+            this.fakeInfo = _.map(this.fakeInfo, item => ({
+              ...item,
+              commentCount: item.comment.length,
+            }));
           }
           this.loading = false;
         }
-      })
+      });
+    },
+    async getUser() {
+      this.userLoading = true;
+      await request.get('/users', {
+        userId: getCookies('id'),
+      }).then((res) => {
+        if (res.data.status === 200) {
+          this.userInfo = res.data.content;
+          this.userLoading = false;
+        } else {
+          this.$Message.error('获取用户信息失败，请稍后再试');
+          this.$router.push({
+            name: 'home',
+          });
+        }
+      });
+    },
+    async updateAnswer() {
+      await request.put('/answers', {
+        creatorId: getCookies('id'),
+        answerId: this.editorAnswer.id,
+        content: this.editorAnswer.content,
+        excerpt: this.editorAnswer.excerpt,
+      }).then((res) => {
+        if (res.data.status === 201) {
+          this.$Message.success('修改成功');
+          this.editorShow = false;
+          this.getList();
+        } else {
+          this.$Message.error('修改失败，请稍后再试');
+          this.editorShow = false;
+        }
+      });
     },
   },
 };

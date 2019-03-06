@@ -21,14 +21,23 @@ body {
 .m-l-25 {
   margin-left: 25px !important;
 }
+.m-l-10 {
+  margin-left: 10px !important;
+}
 .m-b-15 {
   margin-bottom: 15px !important;
+}
+.m-b-25 {
+  margin-bottom: 25px !important;
 }
 .m-t-50 {
   margin-top: 50px !important;
 }
 .m-t-10 {
   margin-top: 10px !important;
+}
+.m-t-25 {
+  margin-top: 25px !important;
 }
 .gray {
   color: #8590A6 !important;
@@ -236,4 +245,33 @@ footer {
 }
 .hidden {
   display: none;
+}
+// 用户信息展示
+.author-info {
+  .avatar {
+    float: left;
+    img {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+    }
+  }
+  .userinfo {
+    flex: 1;
+    margin-left: 50px;
+    overflow: hidden;
+    text-align: left;
+    p {
+      margin: 0;
+    }
+    .username {
+      font-weight: 600;
+      color: #444444;
+    }
+  }
+}
+
+.with-border {
+  border: 1px solid #dcdfe6;
+  border-radius: 5px;
 }

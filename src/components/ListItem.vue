@@ -1,7 +1,11 @@
 <template>
   <div class="answer-main">
     <div class="title" v-if="showPart.indexOf('title') >= 0">
-      <h2>{{transtedInfo.title}}</h2>
+      <h2>
+        <router-link :to="{name: type === 0 ? 'detailsArticles' : 'detailsQuestions', params: {id: item.id}}">
+          {{transtedInfo.title}}
+        </router-link>
+      </h2>
     </div>
     <div class="creater-info" v-if="showPart.indexOf('creator') >= 0">
       <div class="avatar">
@@ -43,16 +47,16 @@
       v-on="$listeners"
       :type="type"
       :itemId="item.id"
-      :thanks_count="item.voteup_count"
-      :comment_count="33"
-      :voteup_count="item.voteup_count"
+      :thanks_count="JSON.parse(item.status.thanks).length"
+      :comment_count="item.commentCount"
+      :voteup_count="JSON.parse(item.status.voteUp).length"
       :relationship="33"
       :showActionItems="showActionItems"
     />
   </div>
 </template>
 <script>
-import ListItemActions from '@/components/ListItemActions';
+import ListItemActions from '@/components/ListItemActions.vue';
 
 export default {
   props: ['item', 'showPart', 'type'],
@@ -61,35 +65,36 @@ export default {
     ListItemActions,
   },
   data() {
-    return{
+    return {
       showType: 'experct',
+      transtedInfo: {
+        title: '',
+        cover: '',
+      },
     };
   },
+  mounted() {
+    if (this.type === 0) {
+      this.transtedInfo.title = this.item.title;
+      this.transtedInfo.cover = this.item.image_url || '';
+    } else if (this.type === 1 || this.type === 2) {
+      this.transtedInfo.title = this.item.question.title;
+      this.transtedInfo.cover = this.item.thumbnail || '';
+    }
+  },
   computed: {
-    transtedInfo() {
-      if (this.type === 'article') {
-        return {
-          title: this.item.title,
-          cover: this.item.image_url,
-        };
-      } else if (this.type === 'answer') {
-        return {
-          title: this.item.question.title,
-          cover: this.item.thumbnail || '',
-        }
-      }
-    },
     showActionItems() {
       if (this.$route.name === 'home') {
         return ['vote', 'thanks', 'comment', 'share', 'favorite', 'more'];
-      } else if (this.$route.name === 'peopleArticles') {
-        return ['vote', 'thanks', 'comment', 'share', 'favorite', 'setting'];
-      } else {
-        return ['vote', 'thanks', 'comment', 'share', 'favorite', 'more'];
       }
-    }
+      if (this.$route.name === 'peopleArticles') {
+        return ['vote', 'thanks', 'comment', 'share', 'favorite', 'setting'];
+      }
+      if (this.$route.name === 'peopleMain') {
+        return ['vote', 'thanks', 'comment', 'share', 'favorite', 'setting'];
+      }
+      return ['vote', 'thanks', 'comment', 'share', 'favorite', 'more'];
+    },
   },
-  methods: {
-  }
 };
 </script>

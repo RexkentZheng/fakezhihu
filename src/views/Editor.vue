@@ -15,6 +15,7 @@
         <i class="el-icon-upload"></i>
         <div class="el-upload__text">添加题图</div>
       </el-upload>
+      <!-- 此处无法显示本地图片，部署在服务器上就好，当前未部署，只能在伪造一个Img -->
       <!-- <img class="oldImg m-b-15" src="https://pic3.zhimg.com/v2-0cd1f1c469f59713d397864275f9349e_r.jpg" alt="" /> -->
       <img class="oldImg m-b-15" :src=imgUrl alt="">
       <el-input

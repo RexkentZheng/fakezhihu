@@ -579,6 +579,7 @@
               color: #8590A6;
             }
             .content {
+              text-align: left;
               margin: 5px 0;
             }
             .actions {
@@ -679,6 +680,7 @@
             font-weight: bold;
             font-synthesis: style;
             line-height: 30px;
+            margin: 0;
           }
           .introduce {
             font-size: 18px;
@@ -686,6 +688,7 @@
             word-break: break-word;
             line-height: 1.6;
             font-weight: 500;
+            margin: 0;
           }
         }
         .sex {
@@ -890,6 +893,9 @@
     }
     .content {
       text-align: left;
+      img {
+        width: 100%;
+      }
     }
   }
   .actions {
@@ -921,5 +927,51 @@
     color: #8590A6;
     font-size: 15px;
     font-weight: 500;
+  }
+}
+
+// 提问模块
+.ask-model {
+  .with-border {
+    border: 1px solid #dcdfe6;
+    border-radius: 5px;
+  }
+}
+
+//  文章详情页面
+.article-details {
+  background-color: white;
+  .article-wrapper {
+    width: 700px;
+    margin: 0 auto;
+    text-align: left;
+    .cover {
+      img {
+        width: 100%;
+      }
+    }
+    .author-info {
+      .avatar {
+        float: left;
+        img {
+          width: 38px;
+          height: 38px;
+          border-radius: 50%;
+        }
+      }
+      .userinfo {
+        flex: 1;
+        margin-left: 50px;
+        overflow: hidden;
+        text-align: left;
+        p {
+          margin: 0;
+        }
+        .username {
+          font-weight: 600;
+          color: #444444;
+        }
+      }
+    }
   }
 }

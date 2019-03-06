@@ -38,8 +38,8 @@
           设置
         </el-button>
         <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item @click.native="deleteArticles()">删除</el-dropdown-item>
-          <el-dropdown-item @click.native="$router.push({name: 'editor', params: {articleId: itemId}})">编辑</el-dropdown-item>
+          <el-dropdown-item @click.native="deleteContent()">删除</el-dropdown-item>
+          <el-dropdown-item @click.native="editorContent()">编辑</el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
     </div>
@@ -76,8 +76,7 @@
 import CommentItem from '@/components/CommentItem.vue';
 import request from '@/service';
 import _ from 'lodash';
-import moment from 'moment';
-import { getCookies } from '@/lib/utils'
+import { getCookies } from '@/lib/utils';
 
 export default {
   props: ['comment_count', 'thanks_count', 'voteup_count', 'relationship', 'metrics_area', 'showActionItems', 'type', 'itemId'],
@@ -86,7 +85,7 @@ export default {
     CommentItem,
   },
   data() {
-    return{
+    return {
       featuredComments: [],
       normalComments: [],
       commentShow: false,
@@ -103,9 +102,26 @@ export default {
         reslove(response());
       });
     },
-    getCommentList() {
+    editorContent() {
+      if (this.type === 0) {
+        this.$router.push({
+          name: 'editor',
+          params: {
+            articleId: this.itemId,
+          },
+        });
+      } else if (this.type === 2) {
+        this.$emit('editorShowFuc', this.itemId);
+      }
+    },
+    async getCommentList() {
       this.commentShow = true;
       this.commentLoading = true;
+      // await request.get('/answers/question', {
+      //   question: this.itemId,
+      // }).then((res) => {
+      //   console.log(res);
+      // })
       this.getCommentParams().then((res) => {
         if (res.status === 200) {
           this.comments = res.data.data;
@@ -113,26 +129,50 @@ export default {
             if (item.featured) {
               return item;
             }
+            return {};
           }));
           this.normalComments = _.compact(_.map(res.data.data, (item) => {
             if (!item.featured) {
               return item;
             }
+            return {};
           }));
           this.commentLoading = false;
         }
       });
+    },
+    deleteContent() {
+      if (this.type === 2) {
+        this.deleteAnswers();
+      } else if (this.type === 0) {
+        this.deleteArticles();
+      }
     },
     async deleteArticles() {
       await request.delete('/articles', {
         data: {
           userId: getCookies('id'),
           articleId: this.itemId,
-        }
+        },
       }).then((res) => {
         if (res.data.status === 202) {
           this.$Message.success('删除成功');
-          this.$emit('getAnswerList');
+          this.$emit('getList');
+        } else {
+          this.$Message.error(res.data.msg);
+        }
+      });
+    },
+    async deleteAnswers() {
+      await request.delete('/answers', {
+        data: {
+          userId: getCookies('id'),
+          answerId: this.itemId,
+        },
+      }).then((res) => {
+        if (res.data.status === 202) {
+          this.$Message.success('删除成功');
+          this.$emit('getList');
         } else {
           this.$Message.error(res.data.msg);
         }
