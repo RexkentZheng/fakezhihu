@@ -48,7 +48,6 @@ export default {
         this.loading = false;
       } else if (this.$route.name === 'hot') {
         this.getHotList();
-        // this.fakeInfo = this.hotList;
         this.loading = false;
       } else {
         this.getNormalList();
@@ -60,7 +59,7 @@ export default {
         limit: 50,
         desktop: true,
       }).then((res) => {
-        if (res.status === 200) {
+        if (res.data.status === 200) {
           this.fakeInfo = res.data.data;
         }
       });

@@ -14,7 +14,7 @@
       :on-success=uploadSuc
       accept=".jpg,.jpeg,.JPG,.JPEG,.png,.PNG"
       multiple>
-      <div class="el-upload__text" ref="hiddenUpload"></div>
+      <div ref="hiddenUpload"></div>
     </el-upload>
   </div>
 </template>
@@ -34,7 +34,7 @@ export default {
           toolbar: [
             ['bold', 'italic'],
             [{ header: 2 }, 'blockquote', 'code-block', { list: 'ordered' }, { list: 'bullet' }],
-            ['link', 'image', 'video'],
+            ['link', 'image'],
             ['clean'],
           ],
           history: {
@@ -49,7 +49,6 @@ export default {
   mounted() {
     this.$refs.myQuillEditor.quill.getModule('toolbar').addHandler('image', this.imgHandler);
     this.$refs.myQuillEditor.quill.root.dataset.placeholder = this.placeHolder;
-    this.value = this.content;
   },
   methods: {
     imgHandler(image) {
@@ -63,17 +62,12 @@ export default {
     updateRichText(content) {
       this.$emit('updateConetent', content.html, content.text);
     },
-    updateLocalContent(content) {
-      this.value = content;
-    },
     uploadSuc(response) {
       const url = response.url.indexOf('http') !== -1 ? response.url : `http${response.url}`; //  返回图片网址中如果没有http自动拼接
       //  此处必须时真实链接，否则无效
-      let fake = url;
-      fake = 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1551677220305&di=01ebb0a440e9fcf4ec25a8e16f3ee540&imgtype=0&src=http%3A%2F%2Fi1.hdslb.com%2Fbfs%2Farchive%2Fa56f7131096427f75f0f86f6d19b2cc908a75c44.jpg';
+      const  fake = 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1551677220305&di=01ebb0a440e9fcf4ec25a8e16f3ee540&imgtype=0&src=http%3A%2F%2Fi1.hdslb.com%2Fbfs%2Farchive%2Fa56f7131096427f75f0f86f6d19b2cc908a75c44.jpg';
       this.$refs.myQuillEditor.quill.insertEmbed(this.$refs.myQuillEditor.quill.getSelection(), 'image', fake);
     },
-
   },
 };
 </script>

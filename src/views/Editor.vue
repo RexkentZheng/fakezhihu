@@ -5,6 +5,7 @@
     />
     <div class="content m-t-50">
       <el-upload
+        v-if="imgUrl === ''"
         class="img-upload m-b-15"
         drag
         action="/imgs/upload"
@@ -13,11 +14,16 @@
         accept=".jpg,.jpeg,.JPG,.JPEG,.png,.PNG"
         multiple>
         <i class="el-icon-upload"></i>
-        <div class="el-upload__text">添加题图</div>
+        <div ref="hiddenUpload">添加题图</div>
       </el-upload>
       <!-- 此处无法显示本地图片，部署在服务器上就好，当前未部署，只能在伪造一个Img -->
       <!-- <img class="oldImg m-b-15" src="https://pic3.zhimg.com/v2-0cd1f1c469f59713d397864275f9349e_r.jpg" alt="" /> -->
-      <img class="oldImg m-b-15" :src=imgUrl alt="">
+      <img
+        v-if="imgUrl !== ''"
+        class="oldImg m-b-15"
+        :src=imgUrl alt=""
+        @click="$refs.hiddenUpload.click()"
+      >
       <el-input
         v-model="title"
         class="m-b-15"
@@ -25,8 +31,9 @@
         placeholder="请输入标题（最多50个字）"
       />
       <rich-text-editor
-        ref='textEditor'
-        :content='content'
+        ref="textEditor"
+        :content="content"
+        :placeHolder="placeHolder"
         @updateConetent=updateConetent
       />
     </div>
@@ -40,23 +47,21 @@ import request from '@/service';
 import { getCookies } from '@/lib/utils';
 
 export default {
-  props: ['value'],
   components: {
-    RichTextEditor,
     EditorHeader,
+    RichTextEditor,
   },
   data() {
     return {
       title: '',
-      content: '123',
+      content: '',
       contentText: '',
+      placeHolder: '请输入正文',
       imgUrl: '',
-      type: '999'
     };
   },
   mounted() {
     if (parseFloat(this.$route.params.articleId) !== 0) {
-      console.log(parseFloat(this.$route.params.articleId) !== 0);
       this.getArticleInfo();
     }
   },
