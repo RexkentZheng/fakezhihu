@@ -547,47 +547,47 @@
           }
           .list-item {
             border-bottom: 1px solid #F6F6F6;
-            .author-info {
-              font-size: 15px;
-              color: #646464;
-              margin: 15px 0 10px;
-              img {
-                width: 38px;
-                height: 38px;
-                float: left;
-              }
-              .detail {
-                float: left;
-                margin-left: 15px;
-                text-align: left;
-                p {
-                  margin: 0;
-                }
-                .username {
-                  font-weight: 600;
-                  color: #000000;
-                }
-                .introduce {
-                  font-size: 14px;
-                }
-              }
-            }
-            .extra-info {
-              text-align: left;
-              font-size: 14px;
-              font-weight: 500;
-              color: #8590A6;
-            }
-            .content {
-              text-align: left;
-              margin: 5px 0;
-            }
-            .actions {
-              margin: 10px 0 15px;
-              text-align: left;
-            }
           }
         }
+      }
+      .author-info {
+        font-size: 15px;
+        color: #646464;
+        margin: 15px 0 10px;
+        img {
+          width: 38px;
+          height: 38px;
+          float: left;
+        }
+        .detail {
+          float: left;
+          margin-left: 15px;
+          text-align: left;
+          p {
+            margin: 0;
+          }
+          .username {
+            font-weight: 600;
+            color: #000000;
+          }
+          .introduce {
+            font-size: 14px;
+          }
+        }
+      }
+      .extra-info {
+        text-align: left;
+        font-size: 14px;
+        font-weight: 500;
+        color: #8590A6;
+      }
+      .content {
+        text-align: left;
+        margin: 5px 0;
+      }
+      .actions {
+        margin: 10px 0 15px;
+        text-align: left;
       }
     }
   }
@@ -972,6 +972,38 @@
           color: #444444;
         }
       }
+    }
+    .content {
+      text-align: left;
+      img {
+        width: 100%;
+      }
+    }
+  }
+}
+
+//  评论列表
+.comment-list {
+  .comment-part {
+    .comment-input {
+      width: 70%;
+      float: left;
+    }
+    .comment-btn {
+      width: 20%;
+      float: right;
+    }
+  }
+}
+
+//  评论操作
+.comment-actions {
+  .hover-hidden {
+    visibility: hidden;
+  }
+  &:hover{
+    .hover-hidden {
+      visibility: visible;
     }
   }
 }

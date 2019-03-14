@@ -56,11 +56,11 @@ export default {
         this.$refs.hiddenUpload.click(); //  绑定在element元素上没有click方法
       }
     },
-    updateConetent(content) {
+    updateContent(content) {
       this.$refs.myQuillEditor.quill.root.innerHTML = content;
     },
     updateRichText(content) {
-      this.$emit('updateConetent', content.html, content.text);
+      this.$emit('updateContent', content.html, content.text);
     },
     uploadSuc(response) {
       const url = response.url.indexOf('http') !== -1 ? response.url : `http${response.url}`; //  返回图片网址中如果没有http自动拼接

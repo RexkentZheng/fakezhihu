@@ -2,7 +2,8 @@
   <div class="answer-main">
     <div class="title" v-if="showPart.indexOf('title') >= 0">
       <h2>
-        <router-link :to="{name: type === 0 ? 'detailsArticles' : 'detailsQuestions', params: {id: item.id}}">
+        <router-link
+          :to="{name: type === 0 ? 'detailsArticles' : 'detailsQuestions', params: {id: transtedInfo.id}}">
           {{transtedInfo.title}}
         </router-link>
       </h2>
@@ -21,9 +22,9 @@
       </div>
     </div>
     <div class="vote" v-if="showPart.indexOf('votes') >= 0">
-      <!-- <span>
-        {{JSON.parse(item.status.voteUp).length}} 人赞同了该回答
-      </span> -->
+      <span>
+        {{item.status ? JSON.parse(item.status.voteUp).length : 0}} 人赞同了该回答
+      </span>
     </div>
     <div class="content-wrapper clearfix">
       <div class="shortCut" v-if="showType === 'experct'">
@@ -46,11 +47,10 @@
       v-bind="$attrs"
       v-on="$listeners"
       :type="type"
-      :itemId="item.id"
-      :thanks_count="JSON.parse(item.status.thanks).length"
-      :comment_count="item.commentCount"
-      :voteup_count="JSON.parse(item.status.voteUp).length"
-      :relationship="33"
+      :itemId="transtedInfo.id"
+      :status="item.status"
+      :commentShowType="showType"
+      :commentCount="item.comment ? item.comment.length : 0"
       :showActionItems="showActionItems"
     />
   </div>
@@ -67,22 +67,30 @@ export default {
   data() {
     return {
       showType: 'experct',
-      transtedInfo: {
-        title: '',
-        cover: '',
-      },
     };
   },
-  mounted() {
-    if (this.type === 0) {
-      this.transtedInfo.title = this.item.title;
-      this.transtedInfo.cover = this.item.image_url || '';
-    } else if (this.type === 1 || this.type === 2) {
-      this.transtedInfo.title = this.item.question.title;
-      this.transtedInfo.cover = this.item.thumbnail || '';
-    }
-  },
   computed: {
+    transtedInfo() {
+      if (this.type === 0) {
+        return {
+          id: this.item.id,
+          title: this.item.title,
+          cover: this.item.image_url || '',
+        };
+      }
+      if (this.type === 2) {
+        return {
+          id: this.item.question.id,
+          title: this.item.question.title,
+          cover: this.item.thumbnail || '',
+        };
+      }
+      return {
+        id: 0,
+        title: '',
+        cover: '',
+      };
+    },
     showActionItems() {
       if (this.$route.name === 'home') {
         return ['vote', 'thanks', 'comment', 'share', 'favorite', 'more'];

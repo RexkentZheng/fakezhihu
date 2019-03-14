@@ -1,14 +1,14 @@
 <template>
   <div class="answer-item">
     <div class="author-info clearfix">
-      <img :src="answer.author.avatarUrl" alt="">
+      <img :src="answer.author ? answer.author.avatarUrl : ''" alt="">
       <div class="detail">
-        <p class="username">{{answer.author.name}}</p>
-        <p class="introduce">{{answer.author.headline}}</p>
+        <p class="username">{{answer.author ? answer.author.name : ''}}</p>
+        <p class="introduce">{{answer.author ? answer.author.headline: ''}}</p>
       </div>
     </div>
     <div class="extra-info">
-      <span>{{JSON.parse(answer.status.voteUp).length}}人赞同了该回答</span>
+      <span>{{JSON.parse(answer.status ? answer.status.voteUp : `[]`).length}}人赞同了该回答</span>
     </div>
     <div class="content">
       <div class="experct" v-show="showType === 'experct'">
@@ -25,9 +25,11 @@
     </div>
     <list-item-actions
       class="actions"
-      :comment_count="answer.comment.length"
-      :thanks_count="JSON.parse(answer.status.thanks).length"
-      :voteup_count="JSON.parse(answer.status.voteUp).length"
+      :type=2
+      :itemId="answer.id"
+      :status="answer.status"
+      :commentCount="answer.comment.length"
+      :commentShowType="showType"
       :showActionItems="['vote', 'comment', 'share', 'favorite', 'thanks', 'more']"
     />
   </div>

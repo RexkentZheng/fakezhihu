@@ -1,23 +1,23 @@
 <template>
   <el-card class="list-nav-card">
     <el-menu class="listNav" :default-active="activeIndex" mode="horizontal">
-      <el-menu-item index="1" v-if="type === 'main'">
-        <router-link :to="{name: 'home'}">推荐</router-link>
+      <el-menu-item index="1" v-if="type === 'main'" @click="$router.push({name: 'home'})">
+        推荐
       </el-menu-item>
-      <el-menu-item index="2" v-if="type === 'main'">
-        <router-link :to="{name: 'hot'}">热榜</router-link>
+      <el-menu-item index="2" v-if="type === 'main'" @click="$router.push({name: 'hot'})">
+        热榜
       </el-menu-item>
-      <el-menu-item index="3" v-if="type === 'people'">
-        <router-link :to="{name: 'peopleMain'}">回答</router-link>
+      <el-menu-item index="3" v-if="type === 'people'" @click="$router.push({name: 'peopleMain'})">
+        回答
       </el-menu-item>
-      <el-menu-item index="4" v-if="type === 'people'">
-        <router-link :to="{name: 'peopleAsks'}">提问</router-link>
+      <el-menu-item index="4" v-if="type === 'people'" @click="$router.push({name: 'peopleAsks'})">
+        提问
       </el-menu-item>
-      <el-menu-item index="5" v-if="type === 'people'">
-        <router-link :to="{name: 'peopleArticles'}">文章</router-link>
+      <el-menu-item index="5" v-if="type === 'people'" @click="$router.push({name: 'peopleArticles'})">
+        文章
       </el-menu-item>
-      <el-menu-item index="6" v-if="type === 'people'">
-        <router-link :to="{name: 'peopleArticles'}">收藏夹</router-link>
+      <el-menu-item index="6" v-if="type === 'people'" @click="$router.push({name: 'peopleArticles'})">
+        收藏夹
       </el-menu-item>
       <el-menu-item index="7" v-if="type === 'people'">
         <el-dropdown>

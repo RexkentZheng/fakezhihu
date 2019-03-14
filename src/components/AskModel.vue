@@ -6,7 +6,7 @@
       ref="richtext"
       :content="discription"
       :placeHolder="placeHolder"
-      @updateConetent="updateConetent"
+      @updateContent="updateContent"
     />
     <div class="footer m-t-10">
       <el-button @click="$emit('changeAskModelVisiable', false)">取 消</el-button>
@@ -15,10 +15,10 @@
   </div>
 </template>
 <script>
+import _ from 'lodash';
 import RichTextEditor from './RichTextEditor.vue';
 import request from '@/service';
 import { getCookies } from '@/lib/utils';
-import _ from 'lodash';
 
 export default {
   props: ['oldItem'],
@@ -30,18 +30,18 @@ export default {
       title: '',
       discription: '',
       excerpt: '',
-      placeHolder: '输入问题背景、条件等详细信息（选填）'
+      placeHolder: '输入问题背景、条件等详细信息（选填）',
     };
   },
   mounted() {
     if (!_.isEmpty(this.oldItem)) {
       this.title = this.oldItem.title;
       this.discription = this.oldItem.discription;
-      this.$refs.richtext.updateConetent(this.discription);
+      this.$refs.richtext.updateContent(this.discription);
     }
   },
   methods: {
-    updateConetent(content, contentText) {
+    updateContent(content, contentText) {
       this.discription = content;
       this.excerpt = contentText.length > 100 ? contentText.slice(0, 100) : contentText;
     },
@@ -65,7 +65,7 @@ export default {
         } else {
           this.$Message.error('问题创建失败，请稍后再试');
         }
-      })
+      });
     },
     async updateQuestion() {
       await request.put('/questions', {
@@ -78,12 +78,12 @@ export default {
         if (res.data.status === 202) {
           this.$Message.success('问题修改成功');
           this.$emit('changeAskModelVisiable', false);
-          this.$emit('updateQuestion')
+          this.$emit('updateQuestion');
         } else {
           this.$Message.error('问题修改失败，请稍后再试');
         }
-      })
-    }
-  }
-}
+      });
+    },
+  },
+};
 </script>

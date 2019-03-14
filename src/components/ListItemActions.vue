@@ -5,23 +5,45 @@
         <span class="el el-icon-fakezhihu-fire"></span>
         {{metrics_area.text}}
       </el-button>
-      <el-button v-if="showActionItems.indexOf('vote') >= 0" size="small" type="primary" plain icon="el-icon-caret-top">赞同 {{voteup_count}}</el-button>
-      <el-button v-if="showActionItems.indexOf('vote') >= 0"  size="small" type="primary" plain icon="el-icon-caret-bottom"></el-button>
+      <el-button
+        v-if="showActionItems.indexOf('vote') >= 0"
+        size="small"
+        type="primary"
+        icon="el-icon-caret-top"
+        :plain="JSON.parse(activeStatus.voteUp).indexOf(userId) < 0"
+        @click="updateStatus('voteUp', JSON.parse(activeStatus.voteUp).indexOf(userId) < 0 ? 'add' : 'pull')"
+      >
+        赞同 {{JSON.parse(activeStatus.voteUp).length}}
+      </el-button>
+      <el-button
+        v-if="showActionItems.indexOf('vote') >= 0" 
+        size="small"
+        type="primary"
+        icon="el-icon-caret-bottom"
+        :plain="JSON.parse(activeStatus.voteDown).indexOf(userId) < 0"
+        @click="updateStatus('voteDown', JSON.parse(activeStatus.voteDown).indexOf(userId) < 0 ? 'add' : 'pull')"
+      />
       <el-button
         v-if="showActionItems.indexOf('comment') >= 0"
         class="btn-text-gray m-l-25"
         size="medium"
         type="text"
-        @click="getCommentList()"
+        @click="dispalyComments()"
       >
         <span class="el el-icon-fakezhihu-comment"></span>
-        {{comment_count}} 条评论
+        {{commentCount}} 条评论
       </el-button>
       <el-button v-if="showActionItems.indexOf('share') >= 0"  class="btn-text-gray m-l-25" size="medium" type="text" icon="el-icon-share">分享</el-button>
       <el-button v-if="showActionItems.indexOf('favorite') >= 0"  class="btn-text-gray m-l-25" size="medium" type="text" icon="el-icon-star-on">收藏</el-button>
-      <el-button v-if="showActionItems.indexOf('thanks') >= 0"  class="btn-text-gray m-l-25" size="medium" type="text">
+      <el-button
+        v-if="showActionItems.indexOf('thanks') >= 0"
+        class="btn-text-gray m-l-25"
+        size="medium"
+        type="text"
+        @click="updateStatus('thanks', JSON.parse(activeStatus.thanks).indexOf(userId) < 0 ? 'add' : 'pull')"
+      >
         <span class="el el-icon-fakezhihu-heart"></span>
-        {{thanks_count}} 个感谢
+        {{JSON.parse(activeStatus.thanks).indexOf(userId) &lt; 0 ? `${JSON.parse(activeStatus.thanks).length} 个感谢` : '取消感谢'}}
       </el-button>
       <el-dropdown v-if="showActionItems.indexOf('more') >= 0"  placement="bottom" class="m-l-25">
         <el-button class="btn-text-gray" size="medium" type="text" icon="el-icon-more">
@@ -43,64 +65,62 @@
         </el-dropdown-menu>
       </el-dropdown>
     </div>
-    <el-card class="comment" v-if="commentShow" v-loading="commentLoading">
-      <span class="comment-type">精选评论（{{featuredComments.length}}）</span>
-      <div class="featured" v-for="(item, index) in featuredComments" :key="item.id">
-        <comment-item
-          :item="item"
-          class="first-comment"
-          :class="index === 0 ? 'first-in-first' : ''"
-        />
-      </div>
-      <span class="comment-type m-t-10">评论（{{normalComments.length}}）</span>
-      <div class="normal" v-for="(item, index) in normalComments" :key="`${item.id}-${index}`">
-        <comment-item
-          :item="item"
-          class="first-comment"
-          :class="index === 0 ? 'first-in-first' : ''"
-        />
-          <div class="child-comments" v-if="item.child_comments">
-            <div class="item" v-for="(child, index) in item.child_comments" :key="`${child.id}-${index}`">
-              <comment-item
-                :item="child"
-                class="second-comment"
-              />
-          </div>
-        </div>
-      </div>
-      <el-button type="info" plain size="mini" @click="commentShow = false">收起评论</el-button>
+    <el-card class="comment" v-if="commentListShow">
+      <comment-list
+        :targetId="itemId"
+        :targetType="type"
+      />
+      <hr class="m-b-15 m-t-15" style="FILTER: alpha(opacity=100,finishopacity=0,style=3)" width="100%" color=#dcdfe6 SIZE=1 />
+      <el-button class="block-center m-b-15" type="info" size="mini" plain @click="commentListShow = false">收起评论</el-button>
     </el-card>
+    <el-dialog  class="no-title-dialog" title="" :visible.sync="commentDialogShow" :modal-append-to-body='false'>
+      <comment-list
+        :targetId="itemId"
+        :targetType="type"
+      />
+    </el-dialog>
   </div>
 </template>
 <script>
-import CommentItem from '@/components/CommentItem.vue';
 import request from '@/service';
 import _ from 'lodash';
 import { getCookies } from '@/lib/utils';
 
 export default {
-  props: ['comment_count', 'thanks_count', 'voteup_count', 'relationship', 'metrics_area', 'showActionItems', 'type', 'itemId'],
+  props: [
+    'status',
+    'showActionItems',
+    'type',
+    'itemId',
+    'commentCount',
+    'commentShowType',
+    'metrics_area',
+  ],
   inheritAttrs: false,
-  components: {
-    CommentItem,
-  },
   data() {
     return {
-      featuredComments: [],
-      normalComments: [],
-      commentShow: false,
+      commentListShow: false,
+      commentDialogShow: false,
       commentLoading: false,
+      updatedStatus: {},
+      userId: 0,
     };
   },
+  mounted() {
+    this.userId = parseFloat(getCookies('id'));
+  },
+  computed: {
+    activeStatus() {
+      return _.isEmpty(this.updatedStatus) ? this.status : this.updatedStatus ;
+    }
+  },
   methods: {
-    getCommentParams() {
-      const response = async () => {
-        const r = await request.get('/answer/comment', {});
-        return r;
-      };
-      return new Promise((reslove) => {
-        reslove(response());
-      });
+    dispalyComments() {
+      if (this.commentShowType === 'experct') {
+        this.commentListShow = true;
+      } else {
+        this.commentDialogShow = true;
+      }
     },
     editorContent() {
       if (this.type === 0) {
@@ -113,33 +133,6 @@ export default {
       } else if (this.type === 2) {
         this.$emit('editorShowFuc', this.itemId);
       }
-    },
-    async getCommentList() {
-      this.commentShow = true;
-      this.commentLoading = true;
-      // await request.get('/answers/question', {
-      //   question: this.itemId,
-      // }).then((res) => {
-      //   console.log(res);
-      // })
-      this.getCommentParams().then((res) => {
-        if (res.status === 200) {
-          this.comments = res.data.data;
-          this.featuredComments = _.compact(_.map(res.data.data, (item) => {
-            if (item.featured) {
-              return item;
-            }
-            return {};
-          }));
-          this.normalComments = _.compact(_.map(res.data.data, (item) => {
-            if (!item.featured) {
-              return item;
-            }
-            return {};
-          }));
-          this.commentLoading = false;
-        }
-      });
     },
     deleteContent() {
       if (this.type === 2) {
@@ -178,6 +171,19 @@ export default {
         }
       });
     },
+    async updateStatus(colName, opreation) {
+      await request.put('/status', {
+        statusId: this.status.id,
+        colName: colName,
+        opreation: opreation,
+        value: this.userId,
+      }).then((res) => {
+        if (res.data.status === 201) {
+          this.$Message.success('修改成功');
+          this.updatedStatus = res.data.content;
+        }
+      })
+    }
   },
 };
 </script>

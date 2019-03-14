@@ -68,16 +68,24 @@
           <div class="question-header-footer-main">
             <div class="question-header-btnGroup">
               <el-button type="primary">关注问题</el-button>
-              <el-button type="primary" plain icon="el-icon-edit" @click="showComment()">写回答</el-button>
+              <el-button
+                type="primary"
+                plain icon="el-icon-edit"
+                @click="showComment()"
+                :disabled="currentAnswer ? true : false"
+              >写回答</el-button>
             </div>
             <div class="question-header-actions">
               <el-button class="button" type="info" plain>
                 <span class="el el-icon-fakezhihu-add-person-fill"></span>
-                关注问题
+                邀请回答
               </el-button>
               <list-item-actions
                 class="actions"
-                :comment_count="questionData.commentCount"
+                :itemId="questionData.id"
+                :type=1
+                :commentShowType="commentShowType"
+                :commentCount="questionData.commentCount"
                 :showActionItems="['comment', 'share', 'more']"
               />
             </div>
@@ -105,27 +113,34 @@
               ref="richtext"
               :content="commentContent"
               :placeHolder="placeHolder"
-              @updateConetent="updateConetent"
+              @updateContent="updateContent"
             />
             <div class="m-b-25">
               <el-button type="primary" @click="createAnswer">提交回答</el-button>
             </div>
           </div>
         </el-card>
-        <el-card>
-          <div class="no-answer m-t-25 m-b-25" v-show="questionData.answerCount === 0">
+        <el-card v-show="currentAnswer" class="m-b-25">
+          <answer-item
+            :answer="currentAnswer"
+            :type="2"
+          />
+        </el-card>
+        <el-card v-show="allAnswerLength === 0">
+          <div class="no-answer m-t-25 m-b-25">
             当前问题没有回答
           </div>
-          <div class="list" v-show="questionData.answerCount !== 0">
+        </el-card>
+        <el-card v-show="questionData.answer ? questionData.answer.length > 0 : false">
+          <div class="list">
             <div class="list-header">
-              <span>{{questionData.answerCount}}个回答</span>
+              <span>{{questionData.answer ? questionData.answer.length : 0}}个回答</span>
             </div>
             <div class="list-item" v-for="(answer, index) in questionData.answer" :key="index">
               <answer-item
                 :answer="answer"
                 :index="index"
                 :type="2"
-                :showPart="['title']"
               />
             </div>
           </div>
@@ -185,13 +200,20 @@ export default {
       loading: true,
       authorLoading: false,
       conmentVisiable: false,
+      commentShowType: 'all',
       showType: 'experct',
       askModelVisiable: false,
       commentContent: '',
       commentExperct: '',
       placeHolder: '写回答...',
       authorInfo: {},
+      currentAnswer: {},
     };
+  },
+  computed: {
+    allAnswerLength() {
+      return this.currentAnswer === {} ? this.questionData.answer.length : this.questionData.answer.length + 1;
+    },
   },
   mounted() {
     this.getQuestion();
@@ -203,6 +225,13 @@ export default {
         questionId: this.$route.params.id,
       }).then((res) => {
         this.questionData = res.data.content;
+        this.questionData.answer = _.compact(_.map(this.questionData.answer, (item) => {
+          if (item.creatorId === parseFloat(getCookies('id'))) {
+            this.currentAnswer = item;
+            return null;
+          }
+          return item;
+        }));
         this.loading = false;
       });
     },
@@ -237,7 +266,7 @@ export default {
     changeAskModelVisiable(status) {
       this.askModelVisiable = status;
     },
-    updateConetent(content, contentText) {
+    updateContent(content, contentText) {
       this.commentContent = content;
       this.commentExperct = contentText.length > 100 ? contentText.slice(0, 100) : contentText;
     },

@@ -30,6 +30,12 @@ module.exports = {
       '/answers': {
         target: 'http://127.0.0.1:8081',
       },
+      '/comments': {
+        target: 'http://127.0.0.1:8081',
+      },
+      '/status': {
+        target: 'http://127.0.0.1:8081',
+      },
       '/hot-list-web': {
         target: 'https://www.zhihu.com/api/v3/feed/topstory/',
       },

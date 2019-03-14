@@ -4,26 +4,27 @@
       <div class="header clearfix">
         <div class="user-info">
           <span class="avatar">
-            <img :src="item.author.member.avatar_url" alt="">
+            <img :src="item.author.avatarUrl" alt="">
           </span>
           <span class="username">
-            {{item.author.member.name}}
-          </span>
-          <span class="connection" v-if="item.reply_to_author">回复</span>
-          <span class="reply-name" v-if="item.reply_to_author">
-            {{item.reply_to_author.member.name}}
+            {{item.author.name}}
           </span>
         </div>
         <span class="created-time">
-          {{item.created_time | dateFilter}}
+          {{item.createdAt | dateFilter}}
         </span>
       </div>
       <span class="content" v-html="item.content">
       </span>
     </div>
     <div>
-      <comment-item-actions />
+      <comment-item-actions
+        :item=item
+        v-bind="$attrs"
+        v-on="$listeners"
+      />
     </div>
+    <hr class="m-b-15" style="FILTER: alpha(opacity=100,finishopacity=0,style=3)" width="100%" color=#dcdfe6 SIZE=1 />
   </div>
 </template>
 <script>
@@ -38,8 +39,8 @@ export default {
   filters: { 
     dateFilter: (date) => {
       moment.locale('zh-cn');
-      return moment.unix(date).fromNow();
+      return moment(date).format('YYYY-MM-DD HH:mm:ss');
     }
-  }
-}
+  },
+};
 </script>

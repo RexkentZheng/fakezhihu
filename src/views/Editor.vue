@@ -34,7 +34,7 @@
         ref="textEditor"
         :content="content"
         :placeHolder="placeHolder"
-        @updateConetent=updateConetent
+        @updateContent=updateContent
       />
     </div>
   </div>
@@ -69,7 +69,7 @@ export default {
     uploadSuc(response, file) {
       this.imgUrl = response.url;
     },
-    updateConetent(content, contentText) {
+    updateContent(content, contentText) {
       this.content = content;
       this.contentText = contentText;
     },
@@ -107,7 +107,7 @@ export default {
           this.content = articleInfo.content;
           this.imgUrl = articleInfo.cover;
           this.title = articleInfo.title;
-          this.$refs.textEditor.updateLocalContent(this.content);
+          this.$refs.textEditor.updateContent(this.content);
         } else {
           this.$Message.error('获取文章内容失败，请稍后再试');
           this.$router.go(-1);

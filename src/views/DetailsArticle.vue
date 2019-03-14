@@ -22,9 +22,9 @@
       <list-item-actions
         v-if="articleData.status"
         :itemId="articleData.id"
-        :thanks_count="JSON.parse(articleData.status.thanks).length"
-        :comment_count="articleData.comment.length"
-        :voteup_count="JSON.parse(articleData.status.voteUp).length"
+        :thanksCount="JSON.parse(articleData.status.thanks).length"
+        :commentCount="articleData.comment.length"
+        :voteupCount="JSON.parse(articleData.status.voteUp).length"
         :relationship="33"
         :showActionItems="showActionItems"
       />

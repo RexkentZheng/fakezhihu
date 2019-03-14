@@ -13,8 +13,8 @@
         </p>
       </a>
       <list-item-actions
+        :metrics_area="item.target.metrics_area"
         class="hotItem-actions"
-        :metrics_area= "item.target.metrics_area"
         :showActionItems= "['hot', 'share']"
       />
     </div>
@@ -30,6 +30,9 @@ export default {
   props: ['item', 'index'],
   components: {
     ListItemActions,
+  },
+  mounted() {
+    console.log(this.item);
   }
 };
 </script>

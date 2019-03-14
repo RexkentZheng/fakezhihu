@@ -1,18 +1,24 @@
 <template>
   <div class="people" v-loading="userLoading">
-    <el-dialog :title="editorAnswer.question.title" :visible.sync="editorShow" :modal-append-to-body='false'>
-      <rich-text-editor
-        class="with-border m-t-10"
-        ref="richtext"
-        :content="editorAnswer.content"
-        :placeHolder="editorPlaceholder"
-        @updateConetent="updateConetent"
-      />
-      <div class="footer m-t-10">
-        <el-button @click="editorShow = false">取 消</el-button>
-        <el-button type="primary" @click="updateAnswer">确 定</el-button>
-      </div>
-    </el-dialog>
+    <div :class="userLoading ? 'hidden': 'show'">
+      <el-dialog
+        :title="editorAnswer.question.title"
+        :visible.sync="editorShow"
+        :modal-append-to-body='false'
+      >
+        <rich-text-editor
+          class="with-border m-t-10"
+          ref="answerEditor"
+          :content="editorAnswer.content"
+          :placeHolder="editorPlaceholder"
+          @updateContent="updateContent"
+        />
+        <div class="footer m-t-10">
+          <el-button @click="editorShow = false">取 消</el-button>
+          <el-button type="primary" @click="updateAnswer">确 定</el-button>
+        </div>
+      </el-dialog>
+    </div>
     <el-card class="profile">
       <div class="profile-header-cover">
         <img src="https://pic1.zhimg.com/80/v2-a15344fdf6d4824656f47a4bc1c8e29d_r.jpg" alt="">
@@ -205,13 +211,20 @@ export default {
     };
   },
   methods: {
-    editorShowFuc(id) {
+    async editorShowFuc(id) {
       [this.editorAnswer] = _.compact(_.map(this.fakeInfo, item => (item.id === id ? item : null)));
       this.editorShow = true;
+      await this.waittingForRender(0);
+      this.$refs.answerEditor.updateContent(this.editorAnswer.content);
     },
-    updateConetent(content, contentText) {
+    updateContent(content, contentText) {
       this.editorAnswer.content = content;
       this.editorAnswer.excerpt = contentText.length > 100 ? contentText.slice(0, 100) : contentText;
+    },
+    waittingForRender(ms) {
+      if (!this.$refs.editorShow) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+      }
     },
     changeInfo() {
       if (this.$route.name === 'peopleMain') {
@@ -250,6 +263,7 @@ export default {
           this.loading = false;
         }
       });
+      console.log(123);
     },
     async getUser() {
       this.userLoading = true;

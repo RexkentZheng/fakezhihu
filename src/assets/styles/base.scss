@@ -36,8 +36,14 @@ body {
 .m-t-10 {
   margin-top: 10px !important;
 }
+.m-t-15 {
+  margin-top: 15px !important;
+}
 .m-t-25 {
   margin-top: 25px !important;
+}
+.p-t-20 {
+  padding-top: 20px !important;
 }
 .gray {
   color: #8590A6 !important;
@@ -274,4 +280,15 @@ footer {
 .with-border {
   border: 1px solid #dcdfe6;
   border-radius: 5px;
+}
+
+.block-center {
+  display: block;
+  margin: 0 auto;
+}
+
+.no-title-dialog {
+  .el-dialog__header {
+    padding:  0 !important;
+  }
 }

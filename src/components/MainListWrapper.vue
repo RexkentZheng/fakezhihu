@@ -59,7 +59,8 @@ export default {
         limit: 50,
         desktop: true,
       }).then((res) => {
-        if (res.data.status === 200) {
+        if (res.status === 200) {
+          this.fakeInfo = [];
           this.fakeInfo = res.data.data;
         }
       });
@@ -67,6 +68,7 @@ export default {
     async getNormalList() {
       await request.get('/articles/list').then((res) => {
         if (res.status === 200) {
+          this.fakeInfo = [];
           this.fakeInfo = res.data.list;
         }
       });
