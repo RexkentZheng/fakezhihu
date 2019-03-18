@@ -831,27 +831,28 @@
       margin-bottom: -4px;  
     }
   }
-  .creater-info {
-    margin-top:6px;
-    .avatar {
+  .creator-info {
+    font-size: 15px;
+    color: #646464;
+    margin: 15px 0 10px;
+    img {
+      width: 38px;
+      height: 38px;
       float: left;
-      img {
-        width: 38px;
-        height: 38px;
-        border-radius: 5px;
-      }
     }
-    .userinfo {
-      flex: 1;
-      margin-left: 50px;
-      overflow: hidden;
+    .detail {
+      float: left;
+      margin-left: 15px;
       text-align: left;
       p {
         margin: 0;
       }
       .username {
         font-weight: 600;
-        color: #444444;
+        color: #000000;
+      }
+      .introduce {
+        font-size: 14px;
       }
     }
   }

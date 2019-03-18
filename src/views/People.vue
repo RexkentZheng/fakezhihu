@@ -222,9 +222,10 @@ export default {
       this.editorAnswer.excerpt = contentText.length > 100 ? contentText.slice(0, 100) : contentText;
     },
     waittingForRender(ms) {
-      if (!this.$refs.editorShow) {
+      if (!this.$refs.answerEditor) {
         return new Promise(resolve => setTimeout(resolve, ms));
       }
+      return null;
     },
     changeInfo() {
       if (this.$route.name === 'peopleMain') {
@@ -263,7 +264,6 @@ export default {
           this.loading = false;
         }
       });
-      console.log(123);
     },
     async getUser() {
       this.userLoading = true;

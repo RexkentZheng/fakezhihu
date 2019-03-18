@@ -16,7 +16,7 @@
         赞同 {{JSON.parse(activeStatus.voteUp).length}}
       </el-button>
       <el-button
-        v-if="showActionItems.indexOf('vote') >= 0" 
+        v-if="showActionItems.indexOf('vote') >= 0"
         size="small"
         type="primary"
         icon="el-icon-caret-bottom"
@@ -111,8 +111,8 @@ export default {
   },
   computed: {
     activeStatus() {
-      return _.isEmpty(this.updatedStatus) ? this.status : this.updatedStatus ;
-    }
+      return _.isEmpty(this.updatedStatus) ? this.status : this.updatedStatus;
+    },
   },
   methods: {
     dispalyComments() {
@@ -174,16 +174,16 @@ export default {
     async updateStatus(colName, opreation) {
       await request.put('/status', {
         statusId: this.status.id,
-        colName: colName,
-        opreation: opreation,
+        colName,
+        opreation,
         value: this.userId,
       }).then((res) => {
         if (res.data.status === 201) {
           this.$Message.success('修改成功');
           this.updatedStatus = res.data.content;
         }
-      })
-    }
+      });
+    },
   },
 };
 </script>

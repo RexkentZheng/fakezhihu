@@ -8,17 +8,11 @@
         </router-link>
       </h2>
     </div>
-    <div class="creater-info" v-if="showPart.indexOf('creator') >= 0">
-      <div class="avatar">
-        <img :src="item.author.avatarUrl" alt="">
-      </div>
-      <div class="userinfo">
-        <p class="username">
-          {{item.author.name}}
-        </p>
-        <p class="headline">
-          {{item.author.headline}}
-        </p>
+    <div class="creator-info clearfix" v-if="showPart.indexOf('creator') >= 0">
+      <img :src="item.author ? item.author.avatarUrl : ''" alt="">
+      <div class="detail">
+        <p class="username">{{item.author ? item.author.name : ''}}</p>
+        <p class="introduce">{{item.author ? item.author.headline: ''}}</p>
       </div>
     </div>
     <div class="vote" v-if="showPart.indexOf('votes') >= 0">
@@ -44,10 +38,11 @@
       </div>
     </div>
     <list-item-actions
+      class="actions"
       v-bind="$attrs"
       v-on="$listeners"
-      :type="type"
-      :itemId="transtedInfo.id"
+      :type="item.type"
+      :itemId="item.id"
       :status="item.status"
       :commentShowType="showType"
       :commentCount="item.comment ? item.comment.length : 0"
@@ -74,14 +69,19 @@ export default {
       if (this.type === 0) {
         return {
           id: this.item.id,
-          title: this.item.title,
+          title: this.showPart.indexOf('title') >= 0 ? this.item.title : '',
           cover: this.item.image_url || '',
         };
       }
-      if (this.type === 2) {
+      if (this.type === 2 && this.showPart.indexOf('title') >= 0) {
         return {
           id: this.item.question.id,
           title: this.item.question.title,
+          cover: this.item.thumbnail || '',
+        };
+      }
+      if (this.type === 2 && this.showPart.indexOf('title') < 0) {
+        return {
           cover: this.item.thumbnail || '',
         };
       }

@@ -71,8 +71,8 @@
               <el-button
                 type="primary"
                 plain icon="el-icon-edit"
-                @click="showComment()"
-                :disabled="currentAnswer ? true : false"
+                @click="showAnswerPart()"
+                :disabled="!currentAnswerEmpty"
               >写回答</el-button>
             </div>
             <div class="question-header-actions">
@@ -95,7 +95,7 @@
     </div>
     <div class="question-main">
       <div class="question-main-clo">
-        <el-card class="m-b-15" v-loading="authorLoading" v-show="conmentVisiable">
+        <el-card class="m-b-15" v-loading="authorLoading" v-show="answerVisiable">
           <div class="author-info m-t-25">
             <div class="avatar">
               <img :src="authorInfo.avatarUrl || ''" alt="">
@@ -111,18 +111,21 @@
             <rich-text-editor
               class="with-border m-t-25 m-b-15"
               ref="richtext"
-              :content="commentContent"
+              :content="answerContent"
               :placeHolder="placeHolder"
               @updateContent="updateContent"
             />
             <div class="m-b-25">
+              <el-button type="default" @click="answerVisiable = false">取消</el-button>
               <el-button type="primary" @click="createAnswer">提交回答</el-button>
             </div>
           </div>
         </el-card>
-        <el-card v-show="currentAnswer" class="m-b-25">
-          <answer-item
-            :answer="currentAnswer"
+        <el-card v-show="!currentAnswerEmpty" class="m-b-25">
+          <list-item
+            class="without-border no-padding"
+            :item="currentAnswer"
+            :showPart="['creator', 'votes']"
             :type="2"
           />
         </el-card>
@@ -137,9 +140,10 @@
               <span>{{questionData.answer ? questionData.answer.length : 0}}个回答</span>
             </div>
             <div class="list-item" v-for="(answer, index) in questionData.answer" :key="index">
-              <answer-item
-                :answer="answer"
+              <list-item
+                :item="answer"
                 :index="index"
+                :showPart="['creator', 'votes']"
                 :type="2"
               />
             </div>
@@ -178,17 +182,18 @@
   </div>
 </template>
 <script>
-import AnswerItem from '@/components/AnswerItem.vue';
+import ListItem from '@/components/ListItem.vue';
 import ListItemActions from '@/components/ListItemActions.vue';
 import SidebarFooter from '@/components/SidebarFooter.vue';
 import AskModel from '@/components/AskModel.vue';
 import RichTextEditor from '@/components/RichTextEditor.vue';
 import request from '@/service';
 import { getCookies } from '@/lib/utils';
+import _ from 'lodash';
 
 export default {
   components: {
-    AnswerItem,
+    ListItem,
     ListItemActions,
     SidebarFooter,
     AskModel,
@@ -199,20 +204,24 @@ export default {
       questionData: {},
       loading: true,
       authorLoading: false,
-      conmentVisiable: false,
+      answerVisiable: false,
       commentShowType: 'all',
       showType: 'experct',
       askModelVisiable: false,
-      commentContent: '',
-      commentExperct: '',
+      answerContent: '',
+      answerExperct: '',
       placeHolder: '写回答...',
       authorInfo: {},
       currentAnswer: {},
     };
   },
   computed: {
+    currentAnswerEmpty() {
+      return _.isEmpty(this.currentAnswer);
+    },
     allAnswerLength() {
-      return this.currentAnswer === {} ? this.questionData.answer.length : this.questionData.answer.length + 1;
+      const questionDataAnswerLength = this.questionData.answer ? this.questionData.answer.length : 0;
+      return this.currentAnswerEmpty ? questionDataAnswerLength : questionDataAnswerLength + 1;
     },
   },
   mounted() {
@@ -250,13 +259,14 @@ export default {
       this.authorLoading = true;
       await request.post('/answers', {
         creatorId: getCookies('id'),
-        content: this.commentContent,
-        excerpt: this.commentExperct,
+        content: this.answerContent,
+        excerpt: this.answerExperct,
         targetId: this.questionData.id,
       }).then((res) => {
         if (res.data.status === 201) {
           this.$Message.success('回答成功');
           this.authorLoading = false;
+          this.answerVisiable = false;
           this.getQuestion();
         } else {
           this.$Message.error('回答失败，请稍后再试');
@@ -267,11 +277,11 @@ export default {
       this.askModelVisiable = status;
     },
     updateContent(content, contentText) {
-      this.commentContent = content;
-      this.commentExperct = contentText.length > 100 ? contentText.slice(0, 100) : contentText;
+      this.answerContent = content;
+      this.answerExperct = contentText.length > 100 ? contentText.slice(0, 100) : contentText;
     },
-    showComment() {
-      this.conmentVisiable = true;
+    showAnswerPart() {
+      this.answerVisiable = true;
       this.getAuthorInfo();
     },
   },
