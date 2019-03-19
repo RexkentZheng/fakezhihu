@@ -14,7 +14,8 @@
           {{item.createdAt | dateFilter}}
         </span>
       </div>
-      <span class="content" v-html="item.content">
+      <span class="content">
+      	{{item.content}}
       </span>
     </div>
     <div>
@@ -24,7 +25,7 @@
         v-on="$listeners"
       />
     </div>
-    <hr class="m-b-15" style="FILTER: alpha(opacity=100,finishopacity=0,style=3)" width="100%" color=#dcdfe6 SIZE=1 />
+    <hr class="hr m-b-15" color=#dcdfe6 size=1 />
   </div>
 </template>
 <script>

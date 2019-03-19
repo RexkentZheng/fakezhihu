@@ -1,9 +1,16 @@
 <template>
   <div>
     <div class="comment-actions">
-      <el-button class="btn-text-gray" size="medium" type="text">
+      <el-button
+        class="btn-text-gray"
+        size="medium"
+        type="text"
+        :plain="JSON.parse(activeStatus.voteUp).indexOf(userId) < 0"
+        @click="updateStatus('voteUp', JSON.parse(activeStatus.voteUp).indexOf(userId) < 0 ? 'add' : 'pull')"
+
+      >
         <span class="el el-icon-fakezhihu-like"></span>
-        {{item.status ? JSON.parse(item.status.voteUp).length : 0}}
+        {{JSON.parse(activeStatus.voteUp).length}}
       </el-button>
       <el-button
         class="btn-text-gray hover-hidden"
@@ -47,8 +54,14 @@
         <span class="el el-icon-fakezhihu-Chat"></span>
         查看回复
       </el-button>
-      <el-button class="btn-text-gray hover-hidden" size="medium" type="text">
-        {{item.status ? JSON.parse(item.status.voteDown).length : 0}}
+      <el-button
+        class="btn-text-gray hover-hidden"
+        size="medium"
+        type="text"
+        :plain="JSON.parse(activeStatus.voteDown).indexOf(userId) < 0"
+        @click="updateStatus('voteDown', JSON.parse(activeStatus.voteDown).indexOf(userId) < 0 ? 'add' : 'pull')"
+      >
+        {{JSON.parse(activeStatus.voteDown).length}}
         <span class="el el-icon-fakezhihu-dislike"></span>
         踩
       </el-button>
@@ -62,7 +75,7 @@
         :targetId="item.id"
         :targetType="item.type"
       />
-      <hr class="m-b-15 m-t-15" style="FILTER: alpha(opacity=100,finishopacity=0,style=3)" width="100%" color=#dcdfe6 SIZE=1 />
+      <hr class="hr m-b-15 m-t-15" color=#dcdfe6 size=1 />
       <el-button class="block-center m-b-15" type="info" size="mini" plain @click="commentListShow = false">收起评论</el-button>
     </el-card>
     <div class="reply" v-show="replyShow">
@@ -82,11 +95,19 @@ export default {
       replyShow: false,
       replyContent: '',
       commentListShow: false,
+      userId: 0,
+      updatedStatus: {},
     };
+  },
+  mounted() {
+    this.userId = parseFloat(getCookies('id'));
   },
   computed: {
     deleteShow() {
       return this.item.author ? this.item.author.id === parseFloat(getCookies('id')) : false;
+    },
+    activeStatus() {
+      return _.isEmpty(this.updatedStatus) ? this.item.status : this.updatedStatus;
     },
   },
   methods: {
@@ -99,6 +120,7 @@ export default {
       }).then((res) => {
         if (res.data.status === 201) {
           this.$Message.success('评论成功');
+          this.$emit('getComments');
           this.replyContent = '';
         }
       })
@@ -115,6 +137,19 @@ export default {
           this.$emit('getComments');
         }
       })
+    },
+    async updateStatus(colName, opreation) {
+      await request.put('/status', {
+        statusId: this.activeStatus.id,
+        colName,
+        opreation,
+        value: this.userId,
+      }).then((res) => {
+        if (res.data.status === 201) {
+          this.$Message.success('修改成功');
+          this.updatedStatus = res.data.content;
+        }
+      });
     },
   },
 };

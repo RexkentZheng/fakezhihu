@@ -20,12 +20,14 @@
       </div>
       <div class="content" v-html="articleData.content"></div>
       <list-item-actions
-        v-if="articleData.status"
+        class="actions m-b-25"
+        v-bind="$attrs"
+        v-on="$listeners"
+        :type="articleData.type"
         :itemId="articleData.id"
-        :thanksCount="JSON.parse(articleData.status.thanks).length"
-        :commentCount="articleData.comment.length"
-        :voteupCount="JSON.parse(articleData.status.voteUp).length"
-        :relationship="33"
+        :status="articleData.status"
+        :commentShowType="commentShowType"
+        :commentCount="articleData.comment ? articleData.comment.length : 0"
         :showActionItems="showActionItems"
       />
     </div>
@@ -41,6 +43,7 @@ export default {
       showActionItems: ['vote', 'thanks', 'comment', 'share', 'favorite', 'more'],
       loading: true,
       articleData: {},
+      commentShowType: 'experct'
     };
   },
   components: {

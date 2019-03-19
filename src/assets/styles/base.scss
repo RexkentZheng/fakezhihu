@@ -1,3 +1,6 @@
+html {
+  height: 100%;
+}
 body {
   margin: 0;
   padding: 0;
@@ -5,6 +8,13 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', 'PingFang SC', 'Microsoft YaHei', 'Source Han Sans SC', 'Noto Sans CJK SC', 'WenQuanYi Micro Hei', sans-serif;
   font-size: 15px;
   color: #1A1A1A;
+  height: 100%;
+}
+#app {
+  height: 100%;
+}
+.home {
+  min-height: 100%;
 }
 .m-r-20 {
   margin-right: 20px !important;
@@ -296,4 +306,8 @@ footer {
   .el-dialog__header {
     padding:  0 !important;
   }
+}
+
+.hr {
+  width: 100%;
 }

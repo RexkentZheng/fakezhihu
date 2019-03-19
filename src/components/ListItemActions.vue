@@ -70,7 +70,7 @@
         :targetId="itemId"
         :targetType="type"
       />
-      <hr class="m-b-15 m-t-15" style="FILTER: alpha(opacity=100,finishopacity=0,style=3)" width="100%" color=#dcdfe6 SIZE=1 />
+      <hr class="hr m-b-15 m-t-15" color=#dcdfe6 size=1 />
       <el-button class="block-center m-b-15" type="info" size="mini" plain @click="commentListShow = false">收起评论</el-button>
     </el-card>
     <el-dialog  class="no-title-dialog" title="" :visible.sync="commentDialogShow" :modal-append-to-body='false'>
@@ -101,7 +101,6 @@ export default {
     return {
       commentListShow: false,
       commentDialogShow: false,
-      commentLoading: false,
       updatedStatus: {},
       userId: 0,
     };

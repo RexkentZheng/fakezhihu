@@ -1,6 +1,9 @@
 <template>
   <div class="comment-list p-t-20" v-loading="loading">
     <p v-show="commentList.length === 0">当前没有评论</p>
+    <p v-show="commentList.length !== 0">
+      共{{commentList.length}}条评论
+    </p>
     <comment-item
       v-for="(comment, index) in commentList"
       :key="index"
@@ -35,6 +38,7 @@ export default {
   },
   methods: {
     async getComments() {
+      this.loading = true;
       await request.get('/comments', {
         targetId: this.targetId,
         targetType: this.targetType,
