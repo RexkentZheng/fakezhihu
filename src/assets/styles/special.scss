@@ -664,9 +664,26 @@
         background: #FFFFFF;
         padding: 4px;
         img {
+          cursor: pointer;
           width: 160px;
           height: 160px;
           border-radius: 5px;
+        }
+        .img-hover-tip {
+          cursor: pointer;
+          position: absolute;
+          top: 25%;
+          left: 20%;
+          i {
+            display: block;
+            font-size: 20px;
+            margin-bottom: 5px;
+          }
+        }
+        &:hover {
+          .img-hover-tip {
+            display: block;
+          }
         }
       }
       .content {
@@ -674,21 +691,35 @@
         padding-left: 32px;
         border-left: 164px solid transparent;
         text-align: left;
+        .username {
+          font-size: 26px;
+          font-weight: bold;
+          font-synthesis: style;
+          line-height: 30px;
+          margin: 0;
+        }
         .content-header {
-          .username {
-            font-size: 26px;
-            font-weight: bold;
-            font-synthesis: style;
-            line-height: 30px;
-            margin: 0;
-          }
           .introduce {
             font-size: 18px;
             white-space: nowrap;
             word-break: break-word;
             line-height: 1.6;
             font-weight: 500;
-            margin: 0;
+            margin: 10px 0 0 0;
+          }
+        }
+        .content-edit {
+          padding: 0;
+          li {
+            list-style-type: none;
+            span {
+              float: left;
+              line-height: 40px;
+            }
+            .el-input {
+              float: left;
+              width: 70%;
+            }
           }
         }
         .sex {

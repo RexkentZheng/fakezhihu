@@ -123,13 +123,13 @@ export default {
         imgUrl: this.imgUrl,
         userId: getCookies('id'),
       }).then((res) => {
-        if (res.data.status === 201) {
+        if (res.msg[0] === 0) {
+          this.$Message.error('文章修改失败，请稍后再试');
+        } else {
           this.$Message.success('文章修改成功');
           this.$router.push({
             name: 'peopleArticles'
-          })
-        } else {
-          this.$Message.error('文章修改失败，请稍后再试');
+          });       
         }
       })
     }

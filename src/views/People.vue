@@ -24,18 +24,38 @@
         <img src="https://pic1.zhimg.com/80/v2-a15344fdf6d4824656f47a4bc1c8e29d_r.jpg" alt="">
       </div>
       <div class="profile-header-wrapper">
-        <div class="avatar">
+        <avatar-upload
+          field="file"
+          @crop-upload-success="cropUploadSuccess"
+          @crop-upload-fail="cropUploadFail"
+          url="/imgs/upload"
+          img-format="png"
+          v-model="imgUploadShow"
+          :width="300"
+          :heght="300"
+        />
+        <div class="avatar" @click="activeUser ? imgUploadShow = true : ''" v-show="!imgUploadShow" >
           <img :src="userInfo.avatarUrl" alt="">
+          <p class="img-hover-tip hidden" v-if="activeUser">
+            <i class="el-icon-edit" />
+            点击切换图片
+          </p>
         </div>
         <div class="content">
-          <div class="content-header">
-            <p class="username">
-              {{userInfo.name}}
-            </p>
+          <p class="username">
+            {{userInfo.name}}
+          </p>
+          <div class="content-header" v-show="!userInfoEditorShow">
             <p class="introduce">
               {{userInfo.headline}}
             </p>
           </div>
+          <ul class="content-edit clearfix" v-show="userInfoEditorShow">
+            <li>
+              <span>座右铭：</span>
+              <el-input type="text" v-model="userInfo.headline" maxlength=150 />
+            </li>
+          </ul>
           <div class="sex" v-if="!detailsShow">
             <span class="el el-icon-fakezhihu-sexm middle-icon"></span>
           </div>
@@ -68,11 +88,29 @@
             @click="detailsShow = false"
           >收起详细资料</el-button>
           <div class="btn-group">
-            <el-button type="info">已关注</el-button>
-            <el-button type="info" plain>
-              <span class="el el-icon-fakezhihu-xiaoxi-control"></span>
-              发私信
-            </el-button>
+            <div class="notActiveUser" v-show="!activeUser">
+              <el-button type="info">已关注</el-button>
+              <el-button type="info" plain >
+                <span class="el el-icon-fakezhihu-xiaoxi-control"></span>
+                发私信
+              </el-button>
+            </div>
+            <div class="activeUserShow" v-show="activeUser && !userInfoEditorShow">
+              <el-button
+                type="primary"
+                @click="userInfoEditorShow = true"
+              >编辑个人信息</el-button>
+            </div>
+            <div class="activeUserEditor" v-show="activeUser && userInfoEditorShow">
+              <el-button
+                type="default"
+                @click="userInfoEditorShow = false"
+              >取消</el-button>
+              <el-button
+                type="primary"
+                @click="updateUserInfo('headline', userInfo.headline)"
+              >保存</el-button>
+            </div>
           </div>
         </div>
       </div>
@@ -176,6 +214,8 @@ import request from '@/service';
 import _ from 'lodash';
 import moment from 'moment';
 import { getCookies } from '@/lib/utils';
+import AvatarUpload from 'vue-image-crop-upload';
+
 
 export default {
   watch: {
@@ -185,11 +225,17 @@ export default {
     MainListNav,
     SidebarFooter,
     RichTextEditor,
+    AvatarUpload,
   },
-  created() {
+  mounted() {
     this.loading = true;
     this.changeInfo();
     this.getUser();
+  },
+  computed: {
+    activeUser() {
+      return this.userInfo.id === parseFloat(getCookies('id'));
+    },
   },
   data() {
     return {
@@ -208,9 +254,19 @@ export default {
       userLoading: false,
       editorShow: false,
       detailsShow: false,
+      userInfoEditorShow: false,
+      imgUploadShow: false,
     };
   },
   methods: {
+    cropUploadSuccess(res) {
+      this.userInfo.avatarUrl = `http://${res.url}`;
+      this.updateUserInfo('avatarUrl', this.userInfo.avatarUrl);
+      this.imgUploadShow = false;
+    },
+    cropUploadFail() {
+      this.$Message.error('上传失败，请稍后再试');
+    },
     async editorShowFuc(id) {
       [this.editorAnswer] = _.compact(_.map(this.fakeInfo, item => (item.id === id ? item : null)));
       this.editorShow = true;
@@ -226,6 +282,20 @@ export default {
         return new Promise(resolve => setTimeout(resolve, ms));
       }
       return null;
+    },
+    async updateUserInfo(key, value) {
+      await request.put('/users', {
+        id: parseFloat(getCookies('id')),
+        colName: key,
+        value,
+      }).then((res) => {
+        if (res.msg[0] === 0) {
+          this.$Message.error('修改失败，请稍后再试');
+        } else {
+          this.$Message.success('修改成功');
+        }
+        this.userInfoEditorShow = false;
+      });
     },
     changeInfo() {
       if (this.$route.name === 'peopleMain') {
@@ -288,14 +358,13 @@ export default {
         content: this.editorAnswer.content,
         excerpt: this.editorAnswer.excerpt,
       }).then((res) => {
-        if (res.data.status === 201) {
-          this.$Message.success('修改成功');
-          this.editorShow = false;
-          this.getList();
-        } else {
+        if (res.msg[0] === 0) {
           this.$Message.error('修改失败，请稍后再试');
-          this.editorShow = false;
+        } else {
+          this.$Message.success('修改成功');
+          this.getList();
         }
+        this.editorShow = false;
       });
     },
   },

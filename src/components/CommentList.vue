@@ -17,7 +17,7 @@
   </div>
 </template>
 <script>
-import CommentItem from '@/components/CommentItem';
+import CommentItem from '@/components/CommentItem.vue';
 import request from '@/service';
 import { getCookies } from '@/lib/utils';
 
@@ -48,8 +48,9 @@ export default {
           this.loading = false;
         } else {
           this.$Message.error(res.error);
+          this.getComments();
         }
-      })
+      });
     },
     async createComment() {
       await request.post('/comments', {
@@ -62,9 +63,13 @@ export default {
           this.$Message.success('评论成功');
           this.getComments();
           this.comment = '';
+        } else {
+          this.$Message.error(res.error);
+          this.getComments();
+          this.comment = '';
         }
-      })
-    }
-  }
-}
+      });
+    },
+  },
+};
 </script>
