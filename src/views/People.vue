@@ -1,24 +1,22 @@
 <template>
   <div class="people" v-loading="userLoading">
-    <div :class="userLoading ? 'hidden': 'show'">
-      <el-dialog
-        :title="editorAnswer.question.title"
-        :visible.sync="editorShow"
-        :modal-append-to-body='false'
-      >
-        <rich-text-editor
-          class="with-border m-t-10"
-          ref="answerEditor"
-          :content="editorAnswer.content"
-          :placeHolder="editorPlaceholder"
-          @updateContent="updateContent"
-        />
-        <div class="footer m-t-10">
-          <el-button @click="editorShow = false">取 消</el-button>
-          <el-button type="primary" @click="updateAnswer">确 定</el-button>
-        </div>
-      </el-dialog>
-    </div>
+    <el-dialog
+      :title="editorAnswer.question.title"
+      :visible.sync="editorShow"
+      :modal-append-to-body='false'
+    >
+      <rich-text-editor
+        class="with-border m-t-10"
+        ref="answerEditor"
+        :content="editorAnswer.content"
+        :placeHolder="editorPlaceholder"
+        @updateContent="updateContent"
+      />
+      <div class="footer m-t-10">
+        <el-button @click="editorShow = false">取 消</el-button>
+        <el-button type="primary" @click="updateAnswer">确 定</el-button>
+      </div>
+    </el-dialog>
     <el-card class="profile">
       <div class="profile-header-cover">
         <img src="https://pic1.zhimg.com/80/v2-a15344fdf6d4824656f47a4bc1c8e29d_r.jpg" alt="">
@@ -38,7 +36,7 @@
           <img :src="userInfo.avatarUrl" alt="">
           <p class="img-hover-tip hidden" v-if="activeUser">
             <i class="el-icon-edit" />
-            点击切换图片
+            点击更改图片
           </p>
         </div>
         <div class="content">
@@ -53,7 +51,7 @@
           <ul class="content-edit clearfix" v-show="userInfoEditorShow">
             <li>
               <span>座右铭：</span>
-              <el-input type="text" v-model="userInfo.headline" maxlength=150 />
+              <el-input type="text" v-model="newHeadLine" maxlength=150 />
             </li>
           </ul>
           <div class="sex" v-if="!detailsShow">
@@ -108,28 +106,32 @@
               >取消</el-button>
               <el-button
                 type="primary"
-                @click="updateUserInfo('headline', userInfo.headline)"
+                @click="updateUserInfo('headline', newHeadLine)"
               >保存</el-button>
             </div>
           </div>
         </div>
       </div>
     </el-card>
-    <div class="profile-main" v-loading="loading">
+    <div class="profile-main" v-loading="listLoading">
       <div class="profile-content">
         <main-list-nav
           :type= "'people'"
         />
-        <el-card>
+        <el-card v-show="listInfo.length > 0">
           <router-view
-            v-for="(item, index) in fakeInfo"
+            v-for="(item) in listInfo"
             @getList="getList"
             @editorShowFuc="editorShowFuc"
-            :key="index"
+            :key="item.id"
             :item="item"
             :showPart="['title', 'creator', 'votes']"
-            :type="type"
+            :type="item.type"
+            :activeUser="activeUser"
           />
+        </el-card>
+        <el-card v-show="listInfo.length === 0">
+          当前没有数据
         </el-card>
       </div>
       <div class="profile-sidebar">
@@ -212,14 +214,12 @@ import SidebarFooter from '@/components/SidebarFooter.vue';
 import RichTextEditor from '@/components/RichTextEditor.vue';
 import request from '@/service';
 import _ from 'lodash';
-import moment from 'moment';
 import { getCookies } from '@/lib/utils';
 import AvatarUpload from 'vue-image-crop-upload';
 
-
 export default {
   watch: {
-    $route: 'changeInfo',
+    $route: 'getList',
   },
   components: {
     MainListNav,
@@ -228,8 +228,7 @@ export default {
     AvatarUpload,
   },
   mounted() {
-    this.loading = true;
-    this.changeInfo();
+    this.getList();
     this.getUser();
   },
   computed: {
@@ -239,8 +238,7 @@ export default {
   },
   data() {
     return {
-      url: '/peopleInfo/answers',
-      fakeInfo: [],
+      listInfo: [],
       userInfo: {},
       editorAnswer: {
         question: {
@@ -249,26 +247,30 @@ export default {
         content: '',
       },
       editorPlaceholder: '修改回答..',
-      type: 'answer',
-      loading: false,
+      newHeadLine: '',
+      listLoading: false,
       userLoading: false,
       editorShow: false,
       detailsShow: false,
       userInfoEditorShow: false,
       imgUploadShow: false,
+      routerTrans: {
+        peopleMain: '/answers/creator',
+        peopleArticles: '/articles/creator',
+        peopleAsks: '/questions/creator',
+      },
     };
   },
   methods: {
     cropUploadSuccess(res) {
-      this.userInfo.avatarUrl = `http://${res.url}`;
-      this.updateUserInfo('avatarUrl', this.userInfo.avatarUrl);
+      this.updateUserInfo('avatarUrl', res.url.includes('http') ? res.url : `http${res.url}`);
       this.imgUploadShow = false;
     },
     cropUploadFail() {
       this.$Message.error('上传失败，请稍后再试');
     },
     async editorShowFuc(id) {
-      [this.editorAnswer] = _.compact(_.map(this.fakeInfo, item => (item.id === id ? item : null)));
+      this.editorAnswer = Object.assign({}, _.find(this.listInfo, item => item.id === id));
       this.editorShow = true;
       await this.waittingForRender(0);
       this.$refs.answerEditor.updateContent(this.editorAnswer.content);
@@ -284,64 +286,47 @@ export default {
       return null;
     },
     async updateUserInfo(key, value) {
+      this.userLoading = true;
       await request.put('/users', {
         id: parseFloat(getCookies('id')),
         colName: key,
         value,
       }).then((res) => {
-        if (res.msg[0] === 0) {
+        if (res.data.content === [0]) {
           this.$Message.error('修改失败，请稍后再试');
         } else {
           this.$Message.success('修改成功');
+          this.userInfo[key] = value;
         }
         this.userInfoEditorShow = false;
       });
-    },
-    changeInfo() {
-      if (this.$route.name === 'peopleMain') {
-        this.loading = true;
-        this.url = '/answers/creator';
-        this.type = 2;
-        this.getList();
-      } else if (this.$route.name === 'peopleArticles') {
-        this.loading = true;
-        this.url = '/articles/creator';
-        this.type = 0;
-        this.getList();
-      } else if (this.$route.name === 'peopleAsks') {
-        this.loading = true;
-        this.url = '/questions/creator';
-        this.type = 1;
-        this.getList();
-      }
+      this.userLoading = false;
     },
     async getList() {
-      this.fakeInfo = [];
-      await request.get(this.url, {
-        creatorId: getCookies('id'),
+      this.listLoading = true;
+      this.listInfo = [];
+      await request.get(this.routerTrans[this.$route.name], {
+        creatorId: this.$route.params.id,
       }).then((res) => {
-        if (res.status === 200) {
-          this.fakeInfo = _.map(res.data.list, item => ({
-            ...item,
-            createdAt: moment(item.createdAt).format('YYYY-MM-DD'),
-          }));
-          if (this.$route.name === 'peopleMain') {
-            this.fakeInfo = _.map(this.fakeInfo, item => ({
-              ...item,
-              commentCount: item.comment.length,
-            }));
-          }
-          this.loading = false;
+        if (res.data.status === 200) {
+          this.listInfo = res.data.list;
+          this.listLoading = false;
+        } else {
+          this.$Message.success('请求个人信息失败，请稍后再试');
+          this.$router.push({
+            name: 'home',
+          });
         }
       });
     },
     async getUser() {
       this.userLoading = true;
       await request.get('/users', {
-        userId: getCookies('id'),
+        userId: this.$route.params.id,
       }).then((res) => {
         if (res.data.status === 200) {
           this.userInfo = res.data.content;
+          this.newHeadLine = this.userInfo.headline;
           this.userLoading = false;
         } else {
           this.$Message.error('获取用户信息失败，请稍后再试');
@@ -358,7 +343,7 @@ export default {
         content: this.editorAnswer.content,
         excerpt: this.editorAnswer.excerpt,
       }).then((res) => {
-        if (res.msg[0] === 0) {
+        if (res.data.msg[0] === 0) {
           this.$Message.error('修改失败，请稍后再试');
         } else {
           this.$Message.success('修改成功');

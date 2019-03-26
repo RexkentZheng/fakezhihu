@@ -2,14 +2,16 @@
   <div>
     <div class="comment-item">
       <div class="header clearfix">
-        <div class="user-info">
-          <span class="avatar">
-            <img :src="item.author.avatarUrl" alt="">
-          </span>
-          <span class="username">
-            {{item.author.name}}
-          </span>
-        </div>
+        <router-link :to="{name: 'peopleMain', params: {id: item.author.id}}">
+          <div class="user-info">
+            <span class="avatar">
+              <img :src="item.author.avatarUrl" alt="">
+            </span>
+            <span class="username">
+              {{item.author.name}}
+            </span>
+          </div>
+        </router-link>
         <span class="created-time">
           {{item.createdAt | dateFilter}}
         </span>

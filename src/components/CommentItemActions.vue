@@ -5,8 +5,8 @@
         class="btn-text-gray"
         size="medium"
         type="text"
-        :plain="JSON.parse(activeStatus.voteUp).indexOf(userId) < 0"
-        @click="updateStatus('voteUp', JSON.parse(activeStatus.voteUp).indexOf(userId) < 0 ? 'add' : 'pull')"
+        :plain="!JSON.parse(activeStatus.voteUp).includes(userId)"
+        @click="updateStatus('voteUp', JSON.parse(activeStatus.voteUp).includes(userId) ? 'pull' : 'add')"
 
       >
         <span class="el el-icon-fakezhihu-like"></span>
@@ -58,8 +58,8 @@
         class="btn-text-gray hover-hidden"
         size="medium"
         type="text"
-        :plain="JSON.parse(activeStatus.voteDown).indexOf(userId) < 0"
-        @click="updateStatus('voteDown', JSON.parse(activeStatus.voteDown).indexOf(userId) < 0 ? 'add' : 'pull')"
+        :plain="!JSON.parse(activeStatus.voteDown).includes(userId)"
+        @click="updateStatus('voteDown', JSON.parse(activeStatus.voteDown).includes(userId) ? 'pull' : 'add')"
       >
         {{JSON.parse(activeStatus.voteDown).length}}
         <span class="el el-icon-fakezhihu-dislike"></span>
@@ -87,11 +87,12 @@
 <script>
 import { getCookies } from '@/lib/utils';
 import request from '@/service';
+import _ from 'lodash';
 
 export default {
   props: ['item'],
   data() {
-    return{
+    return {
       replyShow: false,
       replyContent: '',
       commentListShow: false,
@@ -123,20 +124,20 @@ export default {
           this.$emit('getComments');
           this.replyContent = '';
         }
-      })
+      });
     },
     async deleteComment() {
       await request.delete('/comments', {
         data: {
           id: this.item.id,
           creatorId: getCookies('id'),
-        }
+        },
       }).then((res) => {
         if (res.data.status === 202) {
           this.$Message.success('删除成功');
           this.$emit('getComments');
         }
-      })
+      });
     },
     async updateStatus(colName, opreation) {
       await request.put('/status', {

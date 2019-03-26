@@ -33,11 +33,9 @@
             <!-- <img class="avatar" src="./../assets/imgs/logo.png" alt=""> -->
           </span>
           <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item>
-              <div @click="goToPersonalPage">
-                <span class="el el-icon-fakezhihu-person"></span>
-                我的主页
-              </div>
+            <el-dropdown-item @click.native="goToPersonalPage()">
+              <span class="el el-icon-fakezhihu-person"></span>
+              我的主页
             </el-dropdown-item>
             <el-dropdown-item divided>
               <i class="el-icon-setting"> 设置</i>

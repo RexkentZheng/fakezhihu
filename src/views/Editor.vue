@@ -42,7 +42,6 @@
 <script>
 import EditorHeader from '@/components/EditorHeader.vue';
 import RichTextEditor from '@/components/RichTextEditor.vue';
-import _ from 'lodash';
 import request from '@/service';
 import { getCookies } from '@/lib/utils';
 
@@ -66,7 +65,7 @@ export default {
     }
   },
   methods: {
-    uploadSuc(response, file) {
+    uploadSuc(response) {
       this.imgUrl = response.url;
     },
     updateContent(content, contentText) {
@@ -75,7 +74,7 @@ export default {
     },
     relaseArticles() {
       if (parseFloat(this.$route.params.articleId) !== 0) {
-        this.updateArticle();  
+        this.updateArticle();
       } else {
         this.createArticle();
       }
@@ -91,7 +90,7 @@ export default {
         if (res.status === 201) {
           this.$Message.success('文章新建成功！');
           this.$router.push({
-            name: 'peopleArticles'
+            name: 'peopleArticles',
           });
         } else {
           this.$Message.error(res.error);
@@ -100,10 +99,10 @@ export default {
     },
     async getArticleInfo() {
       await request.get('/articles', {
-        articleId: this.$route.params.articleId
+        articleId: this.$route.params.articleId,
       }).then((res) => {
-        const articleInfo = res.data.content;
-        if ( res.data.status === 200) {
+        if (res.data.status === 200) {
+          const articleInfo = res.data.content;
           this.content = articleInfo.content;
           this.imgUrl = articleInfo.cover;
           this.title = articleInfo.title;
@@ -112,7 +111,7 @@ export default {
           this.$Message.error('获取文章内容失败，请稍后再试');
           this.$router.go(-1);
         }
-      })
+      });
     },
     async updateArticle() {
       await request.put('/articles', {
@@ -123,16 +122,16 @@ export default {
         imgUrl: this.imgUrl,
         userId: getCookies('id'),
       }).then((res) => {
-        if (res.msg[0] === 0) {
+        if (res.data.content === [0]) {
           this.$Message.error('文章修改失败，请稍后再试');
         } else {
           this.$Message.success('文章修改成功');
           this.$router.push({
-            name: 'peopleArticles'
-          });       
+            name: 'peopleArticles',
+          });
         }
-      })
-    }
+      });
+    },
   },
 };
 </script>

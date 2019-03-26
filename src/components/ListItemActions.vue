@@ -1,30 +1,30 @@
 <template>
   <div>
     <div class="actions">
-      <el-button v-if="showActionItems.indexOf('hot') >= 0"  class="btn-text-gray" size="medium" type="text">
+      <el-button v-if="showActionItems.includes('hot')"  class="btn-text-gray" size="medium" type="text">
         <span class="el el-icon-fakezhihu-fire"></span>
         {{metrics_area.text}}
       </el-button>
       <el-button
-        v-if="showActionItems.indexOf('vote') >= 0"
+        v-if="showActionItems.includes('vote')"
         size="small"
         type="primary"
         icon="el-icon-caret-top"
-        :plain="JSON.parse(activeStatus.voteUp).indexOf(userId) < 0"
-        @click="updateStatus('voteUp', JSON.parse(activeStatus.voteUp).indexOf(userId) < 0 ? 'add' : 'pull')"
+        :plain="!JSON.parse(activeStatus.voteUp).includes(userId)"
+        @click="updateStatus('voteUp', JSON.parse(activeStatus.voteUp).includes(userId) ? 'pull' : 'add')"
       >
         赞同 {{JSON.parse(activeStatus.voteUp).length}}
       </el-button>
       <el-button
-        v-if="showActionItems.indexOf('vote') >= 0"
+        v-if="showActionItems.includes('vote')"
         size="small"
         type="primary"
         icon="el-icon-caret-bottom"
-        :plain="JSON.parse(activeStatus.voteDown).indexOf(userId) < 0"
-        @click="updateStatus('voteDown', JSON.parse(activeStatus.voteDown).indexOf(userId) < 0 ? 'add' : 'pull')"
+        :plain="!JSON.parse(activeStatus.voteDown).includes(userId)"
+        @click="updateStatus('voteDown', JSON.parse(activeStatus.voteDown).includes(userId) ? 'pull' : 'add')"
       />
       <el-button
-        v-if="showActionItems.indexOf('comment') >= 0"
+        v-if="showActionItems.includes('comment')"
         class="btn-text-gray m-l-25"
         size="medium"
         type="text"
@@ -33,19 +33,19 @@
         <span class="el el-icon-fakezhihu-comment"></span>
         {{commentCount}} 条评论
       </el-button>
-      <el-button v-if="showActionItems.indexOf('share') >= 0"  class="btn-text-gray m-l-25" size="medium" type="text" icon="el-icon-share">分享</el-button>
-      <el-button v-if="showActionItems.indexOf('favorite') >= 0"  class="btn-text-gray m-l-25" size="medium" type="text" icon="el-icon-star-on">收藏</el-button>
+      <el-button v-if="showActionItems.includes('share')"  class="btn-text-gray m-l-25" size="medium" type="text" icon="el-icon-share">分享</el-button>
+      <el-button v-if="showActionItems.includes('favorite')"  class="btn-text-gray m-l-25" size="medium" type="text" icon="el-icon-star-on">收藏</el-button>
       <el-button
-        v-if="showActionItems.indexOf('thanks') >= 0"
+        v-if="showActionItems.includes('thanks')"
         class="btn-text-gray m-l-25"
         size="medium"
         type="text"
-        @click="updateStatus('thanks', JSON.parse(activeStatus.thanks).indexOf(userId) < 0 ? 'add' : 'pull')"
+        @click="updateStatus('thanks', JSON.parse(activeStatus.thanks).includes(userId) ? 'pull' : 'add')"
       >
         <span class="el el-icon-fakezhihu-heart"></span>
-        {{JSON.parse(activeStatus.thanks).indexOf(userId) &lt; 0 ? `${JSON.parse(activeStatus.thanks).length} 个感谢` : '取消感谢'}}
+        {{JSON.parse(activeStatus.thanks).includes(userId) ? '取消感谢' : `${JSON.parse(activeStatus.thanks).length} 个感谢`}}
       </el-button>
-      <el-dropdown v-if="showActionItems.indexOf('more') >= 0"  placement="bottom" class="m-l-25">
+      <el-dropdown v-if="showActionItems.includes('more')"  placement="bottom" class="m-l-25">
         <el-button class="btn-text-gray" size="medium" type="text" icon="el-icon-more">
         </el-button>
         <el-dropdown-menu slot="dropdown">
@@ -55,13 +55,13 @@
           <el-dropdown-item>不感兴趣</el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
-      <el-dropdown v-if="showActionItems.indexOf('setting') >= 0"  placement="bottom" class="m-l-25">
+      <el-dropdown v-if="showActionItems.includes('setting') && activeUser"  placement="bottom" class="m-l-25">
         <el-button class="btn-text-gray" size="medium" type="text" icon="el-icon-setting">
           设置
         </el-button>
         <el-dropdown-menu slot="dropdown">
           <el-dropdown-item @click.native="deleteContent()">删除</el-dropdown-item>
-          <el-dropdown-item @click.native="editorContent()">编辑</el-dropdown-item>
+          <el-dropdown-item @click.native="editContent()">编辑</el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
     </div>
@@ -94,6 +94,7 @@ export default {
     'itemId',
     'commentCount',
     'commentShowType',
+    'activeUser',
     'metrics_area',
   ],
   inheritAttrs: false,
@@ -121,7 +122,7 @@ export default {
         this.commentDialogShow = true;
       }
     },
-    editorContent() {
+    editContent() {
       if (this.type === 0) {
         this.$router.push({
           name: 'editor',
@@ -129,14 +130,16 @@ export default {
             articleId: this.itemId,
           },
         });
-      } else if (this.type === 2) {
+      }
+      if (this.type === 2) {
         this.$emit('editorShowFuc', this.itemId);
       }
     },
     deleteContent() {
       if (this.type === 2) {
         this.deleteAnswers();
-      } else if (this.type === 0) {
+      }
+      if (this.type === 0) {
         this.deleteArticles();
       }
     },
@@ -158,7 +161,7 @@ export default {
     async deleteAnswers() {
       await request.delete('/answers', {
         data: {
-          userId: getCookies('id'),
+          userId: this.userId,
           answerId: this.itemId,
         },
       }).then((res) => {

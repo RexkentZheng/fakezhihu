@@ -288,6 +288,21 @@ footer {
   }
 }
 
+.mini-creator-info {
+  display: inline-block;
+  .avatar {
+    width: 24px !important;
+    height: 24px !important;
+    float: left;
+  }
+  .username {
+    font-weight: 600;
+    font-size: 16px;
+    float: left;
+    margin: 0 0 0 10px;
+  }
+}
+
 .with-border {
   border: 1px solid #dcdfe6;
   border-radius: 5px;

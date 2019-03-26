@@ -85,7 +85,7 @@
                 :itemId="questionData.id"
                 :type=1
                 :commentShowType="commentShowType"
-                :commentCount="questionData.commentCount"
+                :commentCount="questionData.comment ? questionData.comment.length : 0"
                 :showActionItems="['comment', 'share', 'more']"
               />
             </div>

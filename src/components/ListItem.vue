@@ -1,6 +1,6 @@
 <template>
   <div class="answer-main">
-    <div class="title" v-if="showPart.indexOf('title') >= 0">
+    <div class="title" v-if="showPart.includes('title')">
       <h2>
         <router-link
           :to="{name: type === 0 ? 'detailsArticles' : 'detailsQuestions', params: {id: transtedInfo.id}}">
@@ -8,14 +8,16 @@
         </router-link>
       </h2>
     </div>
-    <div class="creator-info clearfix" v-if="showPart.indexOf('creator') >= 0">
-      <img :src="item.author ? item.author.avatarUrl : ''" alt="">
-      <div class="detail">
-        <p class="username">{{item.author ? item.author.name : ''}}</p>
-        <p class="introduce">{{item.author ? item.author.headline: ''}}</p>
-      </div>
+    <div class="creator-info clearfix" v-if="showPart.includes('creator')">
+      <router-link :to="{name: 'peopleMain', params: {id: item.author ? item.author.id : 0}}">
+        <img :src="item.author ? item.author.avatarUrl : ''" alt="">
+        <div class="detail">
+          <p class="username">{{item.author ? item.author.name : ''}}</p>
+          <p class="introduce">{{item.author ? item.author.headline: ''}}</p>
+        </div>
+      </router-link>
     </div>
-    <div class="vote" v-if="showPart.indexOf('votes') >= 0">
+    <div class="vote" v-if="showPart.includes('votes')">
       <span>
         {{item.status ? JSON.parse(item.status.voteUp).length : 0}} 人赞同了该回答
       </span>
@@ -33,6 +35,10 @@
         </div>
       </div>
       <div class="content" v-if="showType === 'all'">
+        <router-link v-if="!showPart.includes('creator')" class="mini-creator-info clearfix" :to="{name: 'peopleMain', params: {id: item.author ? item.author.id : 0}}">
+          <img class="avatar" :src="item.author ? item.author.avatarUrl : ''" alt="">
+          <p class="username">{{item.author ? item.author.name : ''}}</p>
+        </router-link>
         <div v-html="item.content"></div>
         <el-button class="btn-no-padding" type="text" icon="el-icon-arrow-up" @click="showType = 'experct'">收起</el-button>
       </div>
@@ -69,18 +75,18 @@ export default {
       if (this.type === 0) {
         return {
           id: this.item.id,
-          title: this.showPart.indexOf('title') >= 0 ? this.item.title : '',
+          title: this.showPart.includes('title') ? this.item.title : '',
           cover: this.item.image_url || '',
         };
       }
-      if (this.type === 2 && this.showPart.indexOf('title') >= 0) {
+      if (this.type === 2 && this.showPart.includes('title')) {
         return {
           id: this.item.question.id,
           title: this.item.question.title,
           cover: this.item.thumbnail || '',
         };
       }
-      if (this.type === 2 && this.showPart.indexOf('title') < 0) {
+      if (this.type === 2 && this.showPart.includes('title')) {
         return {
           cover: this.item.thumbnail || '',
         };
@@ -92,13 +98,7 @@ export default {
       };
     },
     showActionItems() {
-      if (this.$route.name === 'home') {
-        return ['vote', 'thanks', 'comment', 'share', 'favorite', 'more'];
-      }
-      if (this.$route.name === 'peopleArticles') {
-        return ['vote', 'thanks', 'comment', 'share', 'favorite', 'setting'];
-      }
-      if (this.$route.name === 'peopleMain') {
+      if (this.$route.name === 'peopleArticles' || this.$route.name === 'peopleMain') {
         return ['vote', 'thanks', 'comment', 'share', 'favorite', 'setting'];
       }
       return ['vote', 'thanks', 'comment', 'share', 'favorite', 'more'];
