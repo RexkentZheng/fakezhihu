@@ -20,6 +20,7 @@
 </template>
 <script>
 import { quillEditor } from 'vue-quill-editor';
+import { imgDec } from '@/lib/config.js';
 
 export default {
   props: ['content', 'placeHolder'],
@@ -63,10 +64,8 @@ export default {
       this.$emit('updateContent', content.html, content.text);
     },
     uploadSuc(response) {
-      const url = response.url.includes('http') ? response.url : `http${response.url}`; //  返回图片网址中如果没有http自动拼接
-      //  此处必须时真实链接，否则无效
-      const  fake = 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1551677220305&di=01ebb0a440e9fcf4ec25a8e16f3ee540&imgtype=0&src=http%3A%2F%2Fi1.hdslb.com%2Fbfs%2Farchive%2Fa56f7131096427f75f0f86f6d19b2cc908a75c44.jpg';
-      this.$refs.myQuillEditor.quill.insertEmbed(this.$refs.myQuillEditor.quill.getSelection(), 'image', fake);
+      const url = `${imgDec}${response.fileName}`;
+      this.$refs.myQuillEditor.quill.insertEmbed(this.$refs.myQuillEditor.quill.getSelection(), 'image', url);
     },
   },
 };

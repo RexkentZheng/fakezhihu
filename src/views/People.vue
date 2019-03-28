@@ -216,6 +216,7 @@ import request from '@/service';
 import _ from 'lodash';
 import { getCookies } from '@/lib/utils';
 import AvatarUpload from 'vue-image-crop-upload';
+import { imgDec } from '@/lib/config.js';
 
 export default {
   watch: {
@@ -263,7 +264,7 @@ export default {
   },
   methods: {
     cropUploadSuccess(res) {
-      this.updateUserInfo('avatarUrl', res.url.includes('http') ? res.url : `http${res.url}`);
+      this.updateUserInfo('avatarUrl', `${imgDec}${res.fileName}`);
       this.imgUploadShow = false;
     },
     cropUploadFail() {

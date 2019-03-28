@@ -46,7 +46,8 @@
       "no-extraneous-dependencies": "off",
       "max-len": "off",
       "import/no-extraneous-dependencies": "off",
-      "import/extensions": "off"
+      "import/extensions": "off",
+      "linebreak-style": "off"
     },
     "parserOptions": {
       "parser": "babel-eslint"

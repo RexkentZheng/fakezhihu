@@ -76,18 +76,13 @@ export default {
         return {
           id: this.item.id,
           title: this.showPart.includes('title') ? this.item.title : '',
-          cover: this.item.image_url || '',
+          cover: this.item.cover || '',
         };
       }
       if (this.type === 2 && this.showPart.includes('title')) {
         return {
           id: this.item.question.id,
           title: this.item.question.title,
-          cover: this.item.thumbnail || '',
-        };
-      }
-      if (this.type === 2 && this.showPart.includes('title')) {
-        return {
           cover: this.item.thumbnail || '',
         };
       }

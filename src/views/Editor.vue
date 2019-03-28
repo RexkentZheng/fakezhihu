@@ -44,6 +44,7 @@ import EditorHeader from '@/components/EditorHeader.vue';
 import RichTextEditor from '@/components/RichTextEditor.vue';
 import request from '@/service';
 import { getCookies } from '@/lib/utils';
+import { imgDec } from '@/lib/config.js';
 
 export default {
   components: {
@@ -66,7 +67,7 @@ export default {
   },
   methods: {
     uploadSuc(response) {
-      this.imgUrl = response.url;
+      this.imgUrl = `${imgDec}${response.fileName}`;
     },
     updateContent(content, contentText) {
       this.content = content;
