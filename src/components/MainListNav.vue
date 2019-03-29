@@ -50,6 +50,6 @@ export default {
   },
   mounted() {
     this.activeIndex = this.routerNametoIndex[this.$route.name];
-  }
+  },
 };
 </script>

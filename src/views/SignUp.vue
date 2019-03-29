@@ -66,16 +66,15 @@
   </div>
 </template>
 <script>
-  import SignUpCore from './../components/SignUpCore';
+import SignUpCore from '@/components/SignUpCore';
 
-  export default {
-    components: {
-      SignUpCore,
-    },
-    data() {
-      return {
-      };
-    },
-  };
-
+export default {
+  components: {
+    SignUpCore,
+  },
+  data() {
+    return {
+    };
+  },
+};
 </script>

@@ -31,9 +31,5 @@ export default {
   components: {
     ListItemActions,
   },
-  mounted() {
-    console.log(this.item);
-  }
 };
 </script>
-

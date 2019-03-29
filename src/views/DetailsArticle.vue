@@ -43,7 +43,7 @@ export default {
       showActionItems: ['vote', 'thanks', 'comment', 'share', 'favorite', 'more'],
       loading: true,
       articleData: {},
-      commentShowType: 'experct'
+      commentShowType: 'experct',
     };
   },
   components: {

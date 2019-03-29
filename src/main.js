@@ -1,5 +1,4 @@
 import Vue from 'vue';
-import './plugins/axios';
 import App from './App.vue';
 import router from './router';
 import './plugins/element';
@@ -17,5 +16,3 @@ new Vue({
   router,
   render: h => h(App),
 }).$mount('#app');
-
-// https://blog.csdn.net/lx_1024/article/details/79260657

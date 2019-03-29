@@ -34,7 +34,7 @@ export default {
     return {
       name: '',
       isLogin: false,
-    }
+    };
   },
   mounted() {
     this.checkLogin();
@@ -53,5 +53,5 @@ export default {
         });
     },
   },
-}
+};
 </script>

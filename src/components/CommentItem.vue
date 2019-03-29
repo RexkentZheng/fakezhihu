@@ -16,9 +16,7 @@
           {{item.createdAt | dateFilter}}
         </span>
       </div>
-      <span class="content">
-      	{{item.content}}
-      </span>
+      <span class="content">{{item.content}}</span>
     </div>
     <div>
       <comment-item-actions
@@ -32,18 +30,18 @@
 </template>
 <script>
 import moment from 'moment';
-import CommentItemActions from '@/components/CommentItemActions'
+import CommentItemActions from '@/components/CommentItemActions';
 
 export default {
   props: ['item'],
   components: {
     CommentItemActions,
   },
-  filters: { 
+  filters: {
     dateFilter: (date) => {
       moment.locale('zh-cn');
       return moment(date).format('YYYY-MM-DD HH:mm:ss');
-    }
+    },
   },
 };
 </script>
