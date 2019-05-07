@@ -1,29 +1,6 @@
 # fakezhihu
 
-## Project setup
-```
-npm install
-```
+使用Vue+Element实现了伪知乎项目前端部分
 
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
-
-### Compiles and minifies for production
-```
-npm run build
-```
-
-### Run your tests
-```
-npm run test
-```
-
-### Lints and fixes files
-```
-npm run lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+# 效果图
+[![efd9e7f41effc5dca2da32305b2567de.png](https://i.postimg.cc/6qcHHvpx/efd9e7f41effc5dca2da32305b2567de.png)](https://postimg.cc/H8J4njM6)
